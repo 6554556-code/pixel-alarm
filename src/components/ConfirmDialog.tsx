@@ -92,10 +92,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderWidth: 1,
   },
+  // «Отмена»: белая с лёгкой серой дымкой по контуру изнутри
   cancel: {
-    backgroundColor: 'rgba(255,255,255,0.85)',
-    borderColor: theme.colors.cardBorder,
-    boxShadow: 'inset 0 0 14px 2px rgba(139,108,240,0.10)',
+    backgroundColor: 'rgba(255,255,255,0.9)',
+    borderColor: 'rgba(27,27,36,0.10)',
+    boxShadow: 'inset 0 0 12px 1px rgba(27,27,36,0.10)',
   },
   // Красная кнопка: мягкая розово-красная заливка + размытое свечение изнутри
   danger: {

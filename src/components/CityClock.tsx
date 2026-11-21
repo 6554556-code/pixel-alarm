@@ -88,11 +88,13 @@ const styles = StyleSheet.create({
   },
   weatherChip: { flexDirection: 'row', alignItems: 'center', gap: 5, maxWidth: '100%' },
   weatherText: { flexShrink: 1 },
-  // Мягкое размытое свечение изнутри почти на всю плашку: днём жёлтое, ночью синее.
+  // Мягкое размытое свечение изнутри почти на всю плашку: днём белое, ночью синее.
   // inset X Y РАЗМЫТИЕ РАСТЯЖЕНИЕ цвет — крутить размытие (14px) и прозрачность (0.45)
+  // День: чистый белый + чуть-чуть серого по контуру изнутри
   chipDay: {
-    borderColor: 'rgba(245,184,61,0.30)',
-    boxShadow: 'inset 0 0 14px 2px rgba(245,184,61,0.45)',
+    backgroundColor: 'rgba(255,255,255,0.92)',
+    borderColor: 'rgba(27,27,36,0.08)',
+    boxShadow: 'inset 0 0 10px 1px rgba(27,27,36,0.08)',
   },
   chipNight: {
     borderColor: 'rgba(123,134,242,0.30)',
