@@ -9,6 +9,7 @@ import { AlarmCard } from './src/components/AlarmCard';
 import { CitySearchModal } from './src/components/CitySearchModal';
 import { ConfirmDialog } from './src/components/ConfirmDialog';
 import { CITY_COLORS, City, MAX_CITIES, useCities } from './src/cities';
+import { newAlarm, useAlarms } from './src/alarms';
 
 // Текущее время, обновляется раз в секунду
 function useNow() {
@@ -25,6 +26,13 @@ export default function App() {
   const { cities, addCity, removeCity } = useCities();
   const [searchOpen, setSearchOpen] = useState(false);
   const [cityToRemove, setCityToRemove] = useState<City | null>(null);
+  const { alarms, addAlarm, toggleAlarm, removeAlarms } = useAlarms();
+
+  // ВРЕМЕННО (до экрана «Новый будильник»): «+» ставит тестовый будильник через 2 минуты
+  const addTestAlarm = () => {
+    const t = new Date(Date.now() + 2 * 60 * 1000);
+    addAlarm(newAlarm(t.getHours(), t.getMinutes(), { note: 'Тест', melody: 'pixel' }));
+  };
 
   const pickCity = (city: City) => {
     addCity(city);
@@ -74,7 +82,7 @@ export default function App() {
           ))}
         </View>
 
-        <AlarmCard />
+        <AlarmCard alarms={alarms} onAdd={addTestAlarm} onToggle={toggleAlarm} onDelete={removeAlarms} />
       </ScrollView>
 
       <CitySearchModal visible={searchOpen} onClose={() => setSearchOpen(false)} onPick={pickCity} />

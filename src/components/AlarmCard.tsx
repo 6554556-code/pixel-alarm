@@ -1,28 +1,23 @@
 // Карточка «Будильник»: список, переключатели и режим удаления.
-// Пока на фиктивных данных — настоящие будильники подключим на этапе Б.
+// Сами будильники живут в src/alarms.ts — карточка только показывает их и передаёт команды.
 //
 // «Удалить все» не удаляет сразу, а включает режим выбора:
 // все будильники помечены красными кружками, нужное можно «спасти» тапом,
 // и только кнопка «Удалить (N)» внизу удаляет помеченные.
 
 import { useState } from 'react';
-import { Alert, LayoutAnimation, Pressable, StyleSheet, Switch, Text, View } from 'react-native';
+import { LayoutAnimation, Pressable, StyleSheet, Switch, Text, View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { theme } from '../theme';
+import { Alarm, formatAlarmTime, formatRepeat } from '../alarms';
+import { getMelody } from '../melodies';
 
-type AlarmItem = {
-  id: string;
-  time: string;
-  note?: string;
-  melody?: string;
-  enabled: boolean;
+type Props = {
+  alarms: Alarm[];
+  onAdd: () => void;
+  onToggle: (id: string) => void;
+  onDelete: (ids: string[]) => void;
 };
-
-const DEMO: AlarmItem[] = [
-  { id: '1', time: '13:50', note: 'Почта', melody: 'Sunrise', enabled: true },
-  { id: '2', time: '14:05', enabled: false },
-  { id: '3', time: '14:24', enabled: false },
-];
 
 // Плавная анимация, когда кружки появляются/исчезают и строки сдвигаются
 const animate = () => LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
@@ -43,14 +38,10 @@ function TrashIcon({ color = '#FFFFFF', size = 16 }: { color?: string; size?: nu
   );
 }
 
-export function AlarmCard() {
-  const [alarms, setAlarms] = useState<AlarmItem[]>(DEMO);
+export function AlarmCard({ alarms, onAdd, onToggle, onDelete }: Props) {
   // null — обычный режим; Set — режим удаления, внутри id помеченных на удаление
   const [marked, setMarked] = useState<Set<string> | null>(null);
   const deleting = marked !== null;
-
-  const toggleEnabled = (id: string) =>
-    setAlarms((list) => list.map((a) => (a.id === id ? { ...a, enabled: !a.enabled } : a)));
 
   // «Удалить все» → помечаем всё
   const startDeleting = () => {
@@ -77,7 +68,7 @@ export function AlarmCard() {
   const confirmDelete = () => {
     if (!marked || marked.size === 0) return;
     animate();
-    setAlarms((list) => list.filter((a) => !marked.has(a.id)));
+    onDelete([...marked]);
     setMarked(null);
   };
 
@@ -86,7 +77,7 @@ export function AlarmCard() {
       <View style={styles.header}>
         <Text style={styles.title}>Будильник</Text>
         {!deleting && (
-          <Pressable style={styles.roundBtn} onPress={() => Alert.alert('Скоро', 'Экран нового будильника — на этапе Б')}>
+          <Pressable style={styles.roundBtn} onPress={onAdd}>
             <Text style={styles.roundBtnText}>+</Text>
           </Pressable>
         )}
@@ -118,15 +109,17 @@ export function AlarmCard() {
             {highlighted && <View style={styles.activeBar} />}
 
             <View style={{ flex: 1 }}>
-              <Text style={[styles.time, isMarked && styles.timeMarked]}>{a.time}</Text>
-              {a.note && <Text style={[styles.note, isMarked && styles.textMarked]}>{a.note}</Text>}
-              {a.melody && <Text style={styles.melody}>Мелодия: {a.melody}</Text>}
+              <Text style={[styles.time, isMarked && styles.timeMarked]}>{formatAlarmTime(a)}</Text>
+              {!!a.note && <Text style={[styles.note, isMarked && styles.textMarked]}>{a.note}</Text>}
+              <Text style={styles.melody}>
+                {formatRepeat(a.weekdays)} · {getMelody(a.melody).name}
+              </Text>
             </View>
 
             {!deleting && (
               <Switch
                 value={a.enabled}
-                onValueChange={() => toggleEnabled(a.id)}
+                onValueChange={() => onToggle(a.id)}
                 trackColor={{ false: theme.colors.switchOff, true: theme.colors.accent }}
               />
             )}
