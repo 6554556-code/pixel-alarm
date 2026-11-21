@@ -14,12 +14,16 @@ type Props = {
   value: number;
   onChange: (v: number) => void;
   format?: (v: number) => string;
-  width?: number;
+  // Барабан тянется на всю половину экрана (крутить можно где угодно),
+  // а цифры прижаты к центру: у часов — вправо, у минут — влево
+  align?: 'left' | 'right' | 'center';
 };
+
+const DIGITS_W = 90; // ширина колонки с цифрами
 
 const pad = (n: number) => String(n).padStart(2, '0');
 
-export function WheelPicker({ values, value, onChange, format = pad, width = 90 }: Props) {
+export function WheelPicker({ values, value, onChange, format = pad, align = 'center' }: Props) {
   const startIndex = Math.max(0, values.indexOf(value));
   const scrollY = useRef(new Animated.Value(startIndex * WHEEL_ITEM_H)).current;
 
@@ -29,11 +33,11 @@ export function WheelPicker({ values, value, onChange, format = pad, width = 90 
   };
 
   return (
-    <View style={{ width, height: WHEEL_ITEM_H * WHEEL_VISIBLE }}>
+    <View style={{ flex: 1, height: WHEEL_ITEM_H * WHEEL_VISIBLE }}>
       <Animated.ScrollView
         showsVerticalScrollIndicator={false}
         snapToInterval={WHEEL_ITEM_H}
-        decelerationRate="fast"
+        decelerationRate="normal" // крутанул — и он ещё катится, как у iPhone
         contentOffset={{ x: 0, y: startIndex * WHEEL_ITEM_H }}
         contentContainerStyle={{ paddingVertical: WHEEL_ITEM_H * 2 }}
         scrollEventThrottle={16}
@@ -46,9 +50,9 @@ export function WheelPicker({ values, value, onChange, format = pad, width = 90 
           const opacity = scrollY.interpolate({ inputRange: range, outputRange: [0.2, 0.45, 1, 0.45, 0.2], extrapolate: 'clamp' });
           const scale = scrollY.interpolate({ inputRange: range, outputRange: [0.75, 0.85, 1, 0.85, 0.75], extrapolate: 'clamp' });
           return (
-            <Animated.Text key={v} style={[styles.item, { opacity, transform: [{ scale }] }]}>
-              {format(v)}
-            </Animated.Text>
+            <View key={v} style={[styles.row, { alignItems: ALIGN[align] }]}>
+              <Animated.Text style={[styles.item, { opacity, transform: [{ scale }] }]}>{format(v)}</Animated.Text>
+            </View>
           );
         })}
       </Animated.ScrollView>
@@ -56,8 +60,12 @@ export function WheelPicker({ values, value, onChange, format = pad, width = 90 
   );
 }
 
+const ALIGN = { left: 'flex-start', right: 'flex-end', center: 'center' } as const;
+
 const styles = StyleSheet.create({
+  row: { height: WHEEL_ITEM_H },
   item: {
+    width: DIGITS_W,
     height: WHEEL_ITEM_H,
     lineHeight: WHEEL_ITEM_H,
     textAlign: 'center',

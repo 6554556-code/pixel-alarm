@@ -139,8 +139,8 @@ export function AlarmEditor({ visible, alarm, onSave, onDelete, onClose }: Props
               {/* Барабан времени со стеклянной «таблеткой» */}
               <View style={styles.wheels} key={session}>
                 <View style={styles.wheelPill} pointerEvents="none" />
-                <WheelPicker values={HOURS} value={draft.hour} onChange={(hour) => set({ hour })} />
-                <WheelPicker values={MINUTES} value={draft.minute} onChange={(minute) => set({ minute })} />
+                <WheelPicker values={HOURS} value={draft.hour} onChange={(hour) => set({ hour })} align="right" />
+                <WheelPicker values={MINUTES} value={draft.minute} onChange={(minute) => set({ minute })} align="left" />
               </View>
               <Text style={styles.inText}>Зазвонит через {inText}</Text>
 
@@ -184,7 +184,7 @@ export function AlarmEditor({ visible, alarm, onSave, onDelete, onClose }: Props
 
                 <View style={styles.row}>
                   <BellIcon />
-                  <Text style={styles.rowLabel}>Отложить</Text>
+                  <Text style={styles.rowLabel}>Повтор</Text>
                   <Switch
                     value={draft.snooze}
                     onValueChange={(snooze) => set({ snooze })}
@@ -195,7 +195,7 @@ export function AlarmEditor({ visible, alarm, onSave, onDelete, onClose }: Props
                 {draft.snooze && (
                   <View style={styles.snooze}>
                     <View style={styles.snoozeHead}>
-                      <Text style={styles.snoozeLabel}>Отложить на</Text>
+                      <Text style={styles.snoozeLabel}>Каждые</Text>
                       <Text style={styles.snoozeValue}>{draft.snoozeMinutes} мин</Text>
                     </View>
                     <Slider
@@ -295,8 +295,7 @@ const styles = StyleSheet.create({
 
   wheels: {
     flexDirection: 'row',
-    justifyContent: 'center',
-    gap: 8,
+    gap: 16, // зазор между часами и минутами
     height: WHEEL_ITEM_H * WHEEL_VISIBLE,
     marginTop: 8,
   },

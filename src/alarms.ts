@@ -5,10 +5,11 @@
 // снимаем старый и, если он включён, ставим заново.
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Alert } from 'react-native';
+import { Alert, AppState } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import AlarmScheduler from 'react-native-alarm-scheduler';
 import { DEFAULT_MELODY, melodyFileUri } from './melodies';
+import { nextRing } from './time';
 
 export type Weekday = 1 | 2 | 3 | 4 | 5 | 6 | 7; // 1 = понедельник … 7 = воскресенье
 
@@ -20,8 +21,9 @@ export type Alarm = {
   note: string; // заметка, показывается на экране звонка
   melody: string; // id мелодии из melodies.ts
   enabled: boolean;
-  snooze: boolean; // кнопка «Отложить» (подключим на шаге с экраном будильника)
-  snoozeMinutes: number;
+  snooze: boolean; // «Повтор»: кнопка повторного звонка на экране будильника
+  snoozeMinutes: number; // «Каждые N мин»
+  ringAt?: number; // для однократных: когда зазвонит (мс). Прошло → будильник сам выключается
   kind: 'alarm' | 'reminder'; // будильник (AlarmKit) или мягкое напоминание — этап В
   theme?: string; // тема-аватарка: кухня, сон, встреча… — этап В
 };
@@ -48,7 +50,7 @@ export function newAlarm(hour: number, minute: number, patch: Partial<Alarm> = {
     melody: DEFAULT_MELODY,
     enabled: true,
     snooze: true,
-    snoozeMinutes: 9,
+    snoozeMinutes: 10,
     kind: 'alarm',
     ...patch,
   };
@@ -70,6 +72,15 @@ export function formatRepeat(weekdays: Weekday[]) {
 }
 
 // --- Связь с системой ---
+
+// Однократному включённому будильнику запоминаем момент звонка
+function withRingAt(a: Alarm): Alarm {
+  if (!a.enabled || a.weekdays.length > 0) return { ...a, ringAt: undefined };
+  return { ...a, ringAt: nextRing(a.hour, a.minute, []).getTime() };
+}
+
+// Сколько ждём после звонка, прежде чем погасить переключатель (вдруг человек ещё смахивает)
+const EXPIRE_GRACE_MS = 60_000;
 
 let permissionAsked = false;
 
@@ -124,13 +135,35 @@ export function useAlarms() {
     AsyncStorage.getItem(STORAGE_KEY)
       .then((saved) => {
         if (saved) {
-          const list: Alarm[] = JSON.parse(saved);
+          const now = Date.now();
+          // Сразу гасим однократные, которые прозвенели, пока приложение было закрыто
+          const list: Alarm[] = (JSON.parse(saved) as Alarm[]).map((a) =>
+            a.enabled && a.ringAt && a.ringAt + EXPIRE_GRACE_MS <= now ? { ...a, enabled: false, ringAt: undefined } : a,
+          );
           alarmsRef.current = list;
           setAlarms(list);
         }
       })
       .catch(() => {});
   }, []);
+
+  // Однократные будильники, которые уже прозвенели, выключаем — как в «Часах» iPhone
+  const expireRung = useCallback(() => {
+    const now = Date.now();
+    const list = alarmsRef.current;
+    if (!list.some((a) => a.enabled && a.ringAt && a.ringAt + EXPIRE_GRACE_MS <= now)) return;
+    commit(list.map((a) => (a.enabled && a.ringAt && a.ringAt + EXPIRE_GRACE_MS <= now ? { ...a, enabled: false, ringAt: undefined } : a)));
+  }, [commit]);
+
+  // Проверяем при возврате в приложение и раз в 30 секунд, пока оно открыто
+  useEffect(() => {
+    const sub = AppState.addEventListener('change', (s) => s === 'active' && expireRung());
+    const id = setInterval(expireRung, 30_000);
+    return () => {
+      sub.remove();
+      clearInterval(id);
+    };
+  }, [expireRung]);
 
   // Синхронизация с понятной ошибкой на экране, если что-то пошло не так
   const syncWithReport = useCallback(
@@ -147,7 +180,8 @@ export function useAlarms() {
   );
 
   const addAlarm = useCallback(
-    (alarm: Alarm) => {
+    (input: Alarm) => {
+      const alarm = withRingAt(input);
       commit([...alarmsRef.current, alarm]);
       syncWithReport(alarm);
     },
@@ -157,7 +191,7 @@ export function useAlarms() {
   const updateAlarm = useCallback(
     (id: string, patch: Partial<Alarm>) => {
       let updated: Alarm | undefined;
-      const next = alarmsRef.current.map((a) => (a.id === id ? (updated = { ...a, ...patch }) : a));
+      const next = alarmsRef.current.map((a) => (a.id === id ? (updated = withRingAt({ ...a, ...patch })) : a));
       commit(next);
       if (updated) syncWithReport(updated);
     },
