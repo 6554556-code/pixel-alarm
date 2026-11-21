@@ -2,7 +2,7 @@
 // Пока на фиктивных данных — настоящие будильники подключим на этапе Б.
 //
 // «Удалить все» не удаляет сразу, а включает режим выбора:
-// все будильники помечены красными корзинками, ненужное можно «спасти» тапом,
+// все будильники помечены красными кружками, нужное можно «спасти» тапом,
 // и только кнопка «Удалить (N)» внизу удаляет помеченные.
 
 import { useState } from 'react';
@@ -96,8 +96,6 @@ export function AlarmCard() {
         </Pressable>
       </View>
 
-      {deleting && <Text style={styles.hint}>Тапни будильник, чтобы оставить его</Text>}
-
       {alarms.length === 0 && <Text style={styles.empty}>Будильников нет. Нажми «+», чтобы добавить.</Text>}
 
       {alarms.map((a, i) => {
@@ -115,12 +113,8 @@ export function AlarmCard() {
               deleting && !isMarked && styles.rowKept,
             ]}
           >
-            {/* Кружок выбора: красный с корзинкой = удалить, пустой = оставить */}
-            {deleting && (
-              <View style={[styles.mark, isMarked ? styles.markOn : styles.markOff]}>
-                {isMarked && <TrashIcon />}
-              </View>
-            )}
+            {/* Кружок выбора: красный = удалить, пустой = оставить */}
+            {deleting && <View style={[styles.mark, isMarked ? styles.markOn : styles.markOff]} />}
             {highlighted && <View style={styles.activeBar} />}
 
             <View style={{ flex: 1 }}>
@@ -192,7 +186,6 @@ const styles = StyleSheet.create({
     borderColor: theme.colors.cardBorder,
   },
   pillText: { fontSize: 15, color: theme.colors.text },
-  hint: { fontSize: 13, color: theme.colors.textMuted, paddingHorizontal: 4, marginBottom: 6 },
   empty: { textAlign: 'center', color: theme.colors.textMuted, paddingVertical: 24 },
   row: { flexDirection: 'row', alignItems: 'center', paddingVertical: 14, paddingHorizontal: 12 },
   rowActive: {
@@ -211,18 +204,16 @@ const styles = StyleSheet.create({
   },
   // Кружок выбора
   mark: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    marginRight: 14,
-    alignItems: 'center',
-    justifyContent: 'center',
+    width: 15,
+    height: 15,
+    borderRadius: 8,
+    marginRight: 12,
     borderWidth: 1.5,
   },
   markOn: {
     backgroundColor: theme.colors.danger,
     borderColor: theme.colors.danger,
-    boxShadow: '0 0 10px rgba(229,87,91,0.45)',
+    boxShadow: '0 0 6px rgba(229,87,91,0.5)',
   },
   markOff: {
     backgroundColor: 'rgba(255,255,255,0.9)',
