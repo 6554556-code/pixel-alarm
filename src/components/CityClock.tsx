@@ -3,17 +3,22 @@
 import { StyleSheet, Text, View } from 'react-native';
 import { theme } from '../theme';
 import { ClockFace } from './ClockFace';
+import { WeatherIcon } from './WeatherIcon';
 import { formatDate, formatTime, getZonedTime } from '../time';
+import { formatTemp, useWeather } from '../weather';
 
 type Props = {
   name: string;
   timeZone: string;
   now: Date;
   color: string; // цвет акцента этого города
+  lat: number;
+  lon: number;
 };
 
-export function CityClock({ name, timeZone, now, color }: Props) {
+export function CityClock({ name, timeZone, now, color, lat, lon }: Props) {
   const t = getZonedTime(now, timeZone);
+  const weather = useWeather(lat, lon);
 
   return (
     <View style={styles.slot}>
@@ -27,8 +32,17 @@ export function CityClock({ name, timeZone, now, color }: Props) {
         <Text style={styles.date}>{formatDate(t)}</Text>
       </View>
 
-      <View style={styles.chip}>
-        <Text style={styles.chipText}>погода…</Text>
+      <View style={[styles.chip, styles.weatherChip]}>
+        {weather ? (
+          <>
+            <WeatherIcon kind={weather.kind} isDay={weather.isDay} />
+            <Text style={[styles.chipText, styles.weatherText]} numberOfLines={1}>
+              {weather.label}, {formatTemp(weather.temp)}
+            </Text>
+          </>
+        ) : (
+          <Text style={styles.chipText}>…</Text>
+        )}
       </View>
     </View>
   );
@@ -71,6 +85,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: theme.colors.cardBorder,
   },
+  weatherChip: { flexDirection: 'row', alignItems: 'center', gap: 5, maxWidth: '100%' },
+  weatherText: { flexShrink: 1 },
   addChip: { marginTop: 'auto' },
   chipText: { fontSize: 12, color: theme.colors.text },
 });

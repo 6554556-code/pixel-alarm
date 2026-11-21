@@ -9,8 +9,8 @@ import { AlarmCard } from './src/components/AlarmCard';
 
 // Пока города захардкожены. На шаге «Города» сделаем выбор и сохранение.
 const CITIES = [
-  { id: 'msk', name: 'Москва', timeZone: 'Europe/Moscow', color: theme.colors.accent },
-  { id: 'seoul', name: 'Сеул', timeZone: 'Asia/Seoul', color: theme.colors.accentAlt },
+  { id: 'msk', name: 'Москва', timeZone: 'Europe/Moscow', color: theme.colors.accent, lat: 55.7558, lon: 37.6173 },
+  { id: 'seoul', name: 'Сеул', timeZone: 'Asia/Seoul', color: theme.colors.accentAlt, lat: 37.5665, lon: 126.978 },
 ];
 
 // Текущее время, обновляется раз в секунду
@@ -44,7 +44,15 @@ export default function App() {
         {/* Три слота с часами */}
         <View style={styles.clocks}>
           {CITIES.map((c) => (
-            <CityClock key={c.id} name={c.name} timeZone={c.timeZone} now={now} color={c.color} />
+            <CityClock
+              key={c.id}
+              name={c.name}
+              timeZone={c.timeZone}
+              now={now}
+              color={c.color}
+              lat={c.lat}
+              lon={c.lon}
+            />
           ))}
           <AddCitySlot />
         </View>
