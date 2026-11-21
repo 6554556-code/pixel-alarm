@@ -1,12 +1,13 @@
 // Главный экран «Часы и будильники»
 
 import { useEffect, useState } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { theme } from './src/theme';
 import { AddCitySlot, CityClock } from './src/components/CityClock';
 import { AlarmCard } from './src/components/AlarmCard';
 import { CitySearchModal } from './src/components/CitySearchModal';
+import { ConfirmDialog } from './src/components/ConfirmDialog';
 import { CITY_COLORS, City, MAX_CITIES, useCities } from './src/cities';
 
 // Текущее время, обновляется раз в секунду
@@ -23,18 +24,17 @@ export default function App() {
   const now = useNow();
   const { cities, addCity, removeCity } = useCities();
   const [searchOpen, setSearchOpen] = useState(false);
+  const [cityToRemove, setCityToRemove] = useState<City | null>(null);
 
   const pickCity = (city: City) => {
     addCity(city);
     setSearchOpen(false);
   };
 
-  // Долгое нажатие на город → спросить, удалить ли
-  const askRemove = (city: City) =>
-    Alert.alert(city.name, 'Убрать этот город с экрана?', [
-      { text: 'Отмена', style: 'cancel' },
-      { text: 'Удалить', style: 'destructive', onPress: () => removeCity(city.id) },
-    ]);
+  const confirmRemove = () => {
+    if (cityToRemove) removeCity(cityToRemove.id);
+    setCityToRemove(null);
+  };
 
   // Пустые слоты до трёх — в каждом кнопка «Добавить»
   const emptySlots = Math.max(0, MAX_CITIES - cities.length);
@@ -56,6 +56,7 @@ export default function App() {
 
         {/* Три слота с часами */}
         <View style={styles.clocks}>
+          {/* Долгое нажатие на город → окно «Убрать город?» */}
           {cities.map((c, i) => (
             <CityClock
               key={c.id}
@@ -65,7 +66,7 @@ export default function App() {
               color={CITY_COLORS[i % CITY_COLORS.length]}
               lat={c.lat}
               lon={c.lon}
-              onLongPress={() => askRemove(c)}
+              onLongPress={() => setCityToRemove(c)}
             />
           ))}
           {Array.from({ length: emptySlots }, (_, i) => (
@@ -77,6 +78,14 @@ export default function App() {
       </ScrollView>
 
       <CitySearchModal visible={searchOpen} onClose={() => setSearchOpen(false)} onPick={pickCity} />
+
+      <ConfirmDialog
+        visible={!!cityToRemove}
+        title={cityToRemove?.name ?? ''}
+        message="Убрать этот город с экрана?"
+        onConfirm={confirmRemove}
+        onCancel={() => setCityToRemove(null)}
+      />
     </View>
   );
 }

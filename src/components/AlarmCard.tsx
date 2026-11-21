@@ -4,6 +4,7 @@
 import { useState } from 'react';
 import { Alert, Pressable, StyleSheet, Switch, Text, View } from 'react-native';
 import { theme } from '../theme';
+import { ConfirmDialog } from './ConfirmDialog';
 
 type AlarmItem = {
   id: string;
@@ -21,17 +22,14 @@ const DEMO: AlarmItem[] = [
 
 export function AlarmCard() {
   const [alarms, setAlarms] = useState<AlarmItem[]>(DEMO);
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   const toggle = (id: string) =>
     setAlarms((list) => list.map((a) => (a.id === id ? { ...a, enabled: !a.enabled } : a)));
 
   // Спрашиваем подтверждение — чтобы не снести всё случайным тапом
   const deleteAll = () => {
-    if (alarms.length === 0) return;
-    Alert.alert('Удалить все будильники?', 'Это действие нельзя отменить.', [
-      { text: 'Отмена', style: 'cancel' },
-      { text: 'Удалить', style: 'destructive', onPress: () => setAlarms([]) },
-    ]);
+    if (alarms.length > 0) setConfirmOpen(true);
   };
 
   return (
@@ -64,6 +62,18 @@ export function AlarmCard() {
           />
         </View>
       ))}
+
+      <ConfirmDialog
+        visible={confirmOpen}
+        title="Удалить все будильники?"
+        message="Это действие нельзя отменить."
+        confirmText="Удалить все"
+        onConfirm={() => {
+          setAlarms([]);
+          setConfirmOpen(false);
+        }}
+        onCancel={() => setConfirmOpen(false)}
+      />
     </View>
   );
 }
