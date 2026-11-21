@@ -87,8 +87,6 @@ export function AlarmCard({ alarms, onAdd, onToggle, onDelete }: Props) {
         </Pressable>
       </View>
 
-      {alarms.length === 0 && <Text style={styles.empty}>Будильников нет. Нажми «+», чтобы добавить.</Text>}
-
       {alarms.map((a, i) => {
         const isMarked = !!marked?.has(a.id);
         const highlighted = a.enabled && !deleting;
@@ -179,7 +177,6 @@ const styles = StyleSheet.create({
     borderColor: theme.colors.cardBorder,
   },
   pillText: { fontSize: 15, color: theme.colors.text },
-  empty: { textAlign: 'center', color: theme.colors.textMuted, paddingVertical: 24 },
   row: { flexDirection: 'row', alignItems: 'center', paddingVertical: 14, paddingHorizontal: 12 },
   rowActive: {
     borderRadius: 20,
