@@ -1,0 +1,253 @@
+diff --git a/node_modules/react-native-alarm-scheduler/build/AlarmScheduler.types.d.ts b/node_modules/react-native-alarm-scheduler/build/AlarmScheduler.types.d.ts
+index 530806b..33a84d6 100644
+--- a/node_modules/react-native-alarm-scheduler/build/AlarmScheduler.types.d.ts
++++ b/node_modules/react-native-alarm-scheduler/build/AlarmScheduler.types.d.ts
+@@ -46,6 +46,8 @@ export type IosAlarmOptions = {
+     soundName?: string;
+     /** Use the package's bundled silent tone. Overrides `soundUri` and `soundName`. */
+     silent?: boolean;
++    /** Pixel Alarm patch: minutes for the native snooze button. 0 = no snooze. */
++    snoozeMinutes?: number;
+ };
+ /**
+  * Android-only alarm behaviour.
+diff --git a/node_modules/react-native-alarm-scheduler/ios/AlarmScheduler/AlarmSchedulerModule+Scheduling.swift b/node_modules/react-native-alarm-scheduler/ios/AlarmScheduler/AlarmSchedulerModule+Scheduling.swift
+index 4ac959a..0b6041b 100644
+--- a/node_modules/react-native-alarm-scheduler/ios/AlarmScheduler/AlarmSchedulerModule+Scheduling.swift
++++ b/node_modules/react-native-alarm-scheduler/ios/AlarmScheduler/AlarmSchedulerModule+Scheduling.swift
+@@ -302,9 +302,20 @@ extension AlarmSchedulerModule {
+     let secondaryButtonTitle = options?.secondaryButtonTitle?.isEmpty == false
+       ? options!.secondaryButtonTitle!
+       : (alertActionMode == "openAppOnly" ? "Open app" : nil)
+-    let secondaryButtonBehavior = normalizeSecondaryButtonBehavior(options?.secondaryButtonBehavior, hasSecondaryButton: secondaryButtonTitle != nil)
+-    let secondaryButton = secondaryButtonTitle.map {
+-      AlarmButton(text: LocalizedStringResource(stringLiteral: $0), textColor: .white, systemImageName: "app.badge")
++    // Pixel Alarm patch: native snooze button
++    let snoozeSeconds = max(0, options?.snoozeMinutes ?? 0) * 60
++    let useSnooze = snoozeSeconds > 0 && alertActionMode != "openAppOnly"
++    let snoozeTitle = options?.secondaryButtonTitle?.isEmpty == false ? options!.secondaryButtonTitle! : "Snooze"
++    let effectiveSecondaryTitle: String? = useSnooze ? snoozeTitle : secondaryButtonTitle
++    let secondaryButtonBehavior: AlarmPresentation.Alert.SecondaryButtonBehavior? = useSnooze
++      ? .custom
++      : normalizeSecondaryButtonBehavior(options?.secondaryButtonBehavior, hasSecondaryButton: secondaryButtonTitle != nil)
++    let secondaryButton = effectiveSecondaryTitle.map {
++      AlarmButton(
++        text: LocalizedStringResource(stringLiteral: $0),
++        textColor: .white,
++        systemImageName: useSnooze ? "zzz" : "app.badge"
++      )
+     }
+     let alertPresentation = makeAlertPresentation(
+       title: alertTitle,
+@@ -313,7 +324,9 @@ extension AlarmSchedulerModule {
+       secondaryButton: secondaryButton,
+       secondaryButtonBehavior: secondaryButtonBehavior,
+       stopIntentBehavior: normalizeStopIntentBehavior(options?.stopIntentBehavior),
+-      secondaryButtonBehaviorName: normalizeSecondaryButtonBehaviorName(options?.secondaryButtonBehavior, hasSecondaryButton: secondaryButtonTitle != nil)
++      secondaryButtonBehaviorName: useSnooze
++        ? "snooze"
++        : normalizeSecondaryButtonBehaviorName(options?.secondaryButtonBehavior, hasSecondaryButton: secondaryButtonTitle != nil)
+     )
+     let presentation = AlarmPresentation(alert: alertPresentation.alert)
+     let attributes = AlarmAttributes(
+@@ -332,7 +345,17 @@ extension AlarmSchedulerModule {
+       behavior: normalizeStopIntentBehavior(options?.stopIntentBehavior),
+       soundName: effectiveSoundName
+     )
+-    let secondaryIntent = makeSecondaryIntent(id: id, behavior: options?.secondaryButtonBehavior)
++    let secondaryIntent: (any LiveActivityIntent)? = useSnooze
++      ? AlarmSchedulerSnoozeIntent(
++        ringingId: id,
++        baseId: id,
++        alarmTitle: alertTitle,
++        stopTitle: stopButtonTitle,
++        snoozeTitle: snoozeTitle,
++        seconds: snoozeSeconds,
++        soundName: effectiveSoundName
++      )
++      : makeSecondaryIntent(id: id, behavior: options?.secondaryButtonBehavior)
+     _ = try await AlarmManager.shared.schedule(
+       id: alarmID,
+       configuration: AlarmManager.AlarmConfiguration.alarm(
+diff --git a/node_modules/react-native-alarm-scheduler/ios/AlarmScheduler/AlarmSchedulerSnooze.swift b/node_modules/react-native-alarm-scheduler/ios/AlarmScheduler/AlarmSchedulerSnooze.swift
+new file mode 100644
+index 0000000..99b8eca
+--- /dev/null
++++ b/node_modules/react-native-alarm-scheduler/ios/AlarmScheduler/AlarmSchedulerSnooze.swift
+@@ -0,0 +1,150 @@
++import Foundation
++
++#if canImport(AlarmKit)
++import ActivityKit
++import AlarmKit
++import AppIntents
++import SwiftUI
++
++// Pixel Alarm patch: native snooze («Повтор») straight from the ringing alarm,
++// without opening or unlocking the app. The button stops the current ring and
++// schedules a one-shot AlarmKit alarm N seconds later with the same title and sound.
++// The snooze alarm offers the same button again, so snoozes can chain.
++
++/// Stable id of the snooze alarm for a base alarm: the same UUID with the first 4 hex chars
++/// replaced. JS uses the same rule to cancel a pending snooze when the base alarm is deleted.
++func alarmSchedulerSnoozeId(for baseId: String) -> String {
++  let lower = baseId.lowercased()
++  guard lower.count == 36 else {
++    return lower
++  }
++  return "5e00" + String(lower.dropFirst(4))
++}
++
++@available(iOS 26.0, *)
++enum AlarmSchedulerSnooze {
++  static func makeAttributes(
++    baseId: String,
++    title: String,
++    stopTitle: String,
++    snoozeTitle: String
++  ) -> AlarmAttributes<AlarmSchedulerMetadata> {
++    let alert = AlarmPresentation.Alert(
++      title: LocalizedStringResource(stringLiteral: title),
++      stopButton: AlarmButton(
++        text: LocalizedStringResource(stringLiteral: stopTitle),
++        textColor: .white,
++        systemImageName: "stop.fill"
++      ),
++      secondaryButton: AlarmButton(
++        text: LocalizedStringResource(stringLiteral: snoozeTitle),
++        textColor: .white,
++        systemImageName: "zzz"
++      ),
++      secondaryButtonBehavior: .custom
++    )
++    return AlarmAttributes(
++      presentation: AlarmPresentation(alert: alert),
++      metadata: AlarmSchedulerMetadata(alarmId: baseId, title: title, values: [:]),
++      tintColor: Color.accentColor
++    )
++  }
++
++  static func makeSound(_ soundName: String) -> AlertConfiguration.AlertSound {
++    guard let name = alarmSchedulerEffectiveSoundName(soundName.isEmpty ? nil : soundName) else {
++      return .default
++    }
++    return .named(name)
++  }
++}
++
++@available(iOS 26.0, *)
++struct AlarmSchedulerSnoozeIntent: LiveActivityIntent {
++  static var title: LocalizedStringResource = "Snooze Alarm"
++  static var authenticationPolicy: IntentAuthenticationPolicy = .alwaysAllowed
++  static var supportedModes: IntentModes { .background }
++
++  @Parameter(title: "Ringing Alarm ID")
++  var ringingId: String
++  @Parameter(title: "Base Alarm ID")
++  var baseId: String
++  @Parameter(title: "Alarm Title")
++  var alarmTitle: String
++  @Parameter(title: "Stop Title")
++  var stopTitle: String
++  @Parameter(title: "Snooze Title")
++  var snoozeTitle: String
++  @Parameter(title: "Snooze Seconds")
++  var seconds: Double
++  @Parameter(title: "Sound Name")
++  var soundName: String
++
++  init() {
++    ringingId = ""
++    baseId = ""
++    alarmTitle = ""
++    stopTitle = "Stop"
++    snoozeTitle = "Snooze"
++    seconds = 600
++    soundName = ""
++  }
++
++  init(
++    ringingId: String,
++    baseId: String,
++    alarmTitle: String,
++    stopTitle: String,
++    snoozeTitle: String,
++    seconds: Double,
++    soundName: String?
++  ) {
++    self.ringingId = ringingId
++    self.baseId = baseId
++    self.alarmTitle = alarmTitle
++    self.stopTitle = stopTitle
++    self.snoozeTitle = snoozeTitle
++    self.seconds = seconds
++    self.soundName = soundName ?? ""
++  }
++
++  func perform() async throws -> some IntentResult {
++    // 1. Silence the alarm that is ringing now (a repeating base alarm keeps its schedule).
++    if let ringing = UUID(uuidString: ringingId) {
++      try? AlarmManager.shared.stop(id: ringing)
++    }
++
++    // 2. Replace any previous snooze of this alarm with a fresh one.
++    let snoozeIdString = alarmSchedulerSnoozeId(for: baseId)
++    guard let snoozeId = UUID(uuidString: snoozeIdString) else {
++      return .result()
++    }
++    try? AlarmManager.shared.cancel(id: snoozeId)
++
++    let fireDate = Date().addingTimeInterval(max(60, seconds))
++    _ = try? await AlarmManager.shared.schedule(
++      id: snoozeId,
++      configuration: AlarmManager.AlarmConfiguration.alarm(
++        schedule: .fixed(fireDate),
++        attributes: AlarmSchedulerSnooze.makeAttributes(
++          baseId: baseId,
++          title: alarmTitle,
++          stopTitle: stopTitle,
++          snoozeTitle: snoozeTitle
++        ),
++        stopIntent: nil,
++        secondaryIntent: AlarmSchedulerSnoozeIntent(
++          ringingId: snoozeIdString,
++          baseId: baseId,
++          alarmTitle: alarmTitle,
++          stopTitle: stopTitle,
++          snoozeTitle: snoozeTitle,
++          seconds: seconds,
++          soundName: soundName
++        ),
++        sound: AlarmSchedulerSnooze.makeSound(soundName)
++      )
++    )
++    return .result()
++  }
++}
++#endif
+diff --git a/node_modules/react-native-alarm-scheduler/ios/AlarmScheduler/AlarmSchedulerTypes.swift b/node_modules/react-native-alarm-scheduler/ios/AlarmScheduler/AlarmSchedulerTypes.swift
+index 2e522b0..bdf1da7 100644
+--- a/node_modules/react-native-alarm-scheduler/ios/AlarmScheduler/AlarmSchedulerTypes.swift
++++ b/node_modules/react-native-alarm-scheduler/ios/AlarmScheduler/AlarmSchedulerTypes.swift
+@@ -25,6 +25,8 @@ struct IosAlarmOptionsRecord: Record {
+   @Field var soundUri: String?
+   @Field var soundName: String?
+   @Field var silent: Bool = false
++  /// Pixel Alarm patch: minutes for the native snooze button. 0 / nil = no snooze button.
++  @Field var snoozeMinutes: Double?
+ }
+ 
+ struct RingHoldOptionsRecord: Record {
+diff --git a/node_modules/react-native-alarm-scheduler/src/AlarmScheduler.types.ts b/node_modules/react-native-alarm-scheduler/src/AlarmScheduler.types.ts
+index 42a872f..e16cbaa 100644
+--- a/node_modules/react-native-alarm-scheduler/src/AlarmScheduler.types.ts
++++ b/node_modules/react-native-alarm-scheduler/src/AlarmScheduler.types.ts
+@@ -58,6 +58,8 @@ export type IosAlarmOptions = {
+   soundName?: string;
+   /** Use the package's bundled silent tone. Overrides `soundUri` and `soundName`. */
+   silent?: boolean;
++  /** Pixel Alarm patch: minutes for the native snooze button. 0 = no snooze. */
++  snoozeMinutes?: number;
+ };
+ 
+ /**

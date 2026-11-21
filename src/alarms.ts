@@ -92,12 +92,17 @@ async function ensurePermission() {
   }
 }
 
-// Снять будильник из системы (если его там нет — не страшно)
+// id отложенного «Повтора» — тот же UUID, первые 4 символа заменены (так же считает нативный патч)
+export const snoozeIdFor = (id: string) => '5e00' + id.toLowerCase().slice(4);
+
+// Снять будильник из системы вместе с его отложенным «Повтором» (если их там нет — не страшно)
 async function unschedule(id: string) {
-  try {
-    await AlarmScheduler.cancelAlarmAsync(id);
-  } catch {
-    // уже снят
+  for (const target of [id, snoozeIdFor(id)]) {
+    try {
+      await AlarmScheduler.cancelAlarmAsync(target);
+    } catch {
+      // уже снят
+    }
   }
 }
 
@@ -112,7 +117,13 @@ async function sync(alarm: Alarm) {
     minute: alarm.minute,
     weekdays: alarm.weekdays,
     title: alarm.note || 'Будильник',
-    ios: { soundUri: await melodyFileUri(alarm.melody) },
+    ios: {
+      soundUri: await melodyFileUri(alarm.melody),
+      stopButtonTitle: 'Стоп',
+      secondaryButtonTitle: 'Повтор',
+      // Кнопка «Повтор» на экране звонка (наш нативный патч библиотеки, см. patches/)
+      snoozeMinutes: alarm.snooze ? alarm.snoozeMinutes : 0,
+    },
   });
 }
 
