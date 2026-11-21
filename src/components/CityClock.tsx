@@ -32,7 +32,7 @@ export function CityClock({ name, timeZone, now, color, lat, lon }: Props) {
         <Text style={styles.date}>{formatDate(t)}</Text>
       </View>
 
-      <View style={[styles.chip, styles.weatherChip]}>
+      <View style={[styles.chip, styles.weatherChip, weather && (weather.isDay ? styles.chipDay : styles.chipNight)]}>
         {weather ? (
           <>
             <WeatherIcon kind={weather.kind} isDay={weather.isDay} />
@@ -87,6 +87,15 @@ const styles = StyleSheet.create({
   },
   weatherChip: { flexDirection: 'row', alignItems: 'center', gap: 5, maxWidth: '100%' },
   weatherText: { flexShrink: 1 },
+  // Внутреннее свечение по контуру плашки: днём жёлтое, ночью синее
+  chipDay: {
+    borderColor: 'rgba(245,184,61,0.55)',
+    boxShadow: 'inset 0 0 6px rgba(245,184,61,0.55)',
+  },
+  chipNight: {
+    borderColor: 'rgba(123,134,242,0.55)',
+    boxShadow: 'inset 0 0 6px rgba(123,134,242,0.55)',
+  },
   addChip: { marginTop: 'auto' },
   chipText: { fontSize: 12, color: theme.colors.text },
 });
