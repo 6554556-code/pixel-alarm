@@ -3,7 +3,7 @@
 import { StyleSheet, Text, View } from 'react-native';
 import { theme } from '../theme';
 import { ClockFace } from './ClockFace';
-import { dayShift, dayShiftLabel, formatDate, formatTime, getZonedTime, deviceTimeZone } from '../time';
+import { formatDate, formatTime, getZonedTime } from '../time';
 
 type Props = {
   name: string;
@@ -14,8 +14,6 @@ type Props = {
 
 export function CityClock({ name, timeZone, now, color }: Props) {
   const t = getZonedTime(now, timeZone);
-  const home = getZonedTime(now, deviceTimeZone);
-  const shiftLabel = dayShiftLabel(dayShift(t, home));
 
   return (
     <View style={styles.slot}>
@@ -28,11 +26,6 @@ export function CityClock({ name, timeZone, now, color }: Props) {
       <View style={styles.dateRow}>
         <Text style={styles.date}>{formatDate(t)}</Text>
       </View>
-      {shiftLabel && (
-        <View style={[styles.badge, { backgroundColor: color }]}>
-          <Text style={styles.badgeText}>{shiftLabel}</Text>
-        </View>
-      )}
 
       <View style={styles.chip}>
         <Text style={styles.chipText}>погода…</Text>
@@ -69,13 +62,6 @@ const styles = StyleSheet.create({
   time: { fontSize: 32, fontWeight: '300', color: theme.colors.text, fontVariant: ['tabular-nums'] },
   dateRow: { marginTop: 2 },
   date: { fontSize: 13, color: theme.colors.textMuted },
-  badge: {
-    marginTop: 4,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: theme.radius.pill,
-  },
-  badgeText: { fontSize: 11, color: 'white', fontWeight: '600' },
   chip: {
     marginTop: 8,
     paddingHorizontal: 10,
