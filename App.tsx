@@ -9,7 +9,8 @@ import { AlarmCard } from './src/components/AlarmCard';
 import { CitySearchModal } from './src/components/CitySearchModal';
 import { ConfirmDialog } from './src/components/ConfirmDialog';
 import { CITY_COLORS, City, MAX_CITIES, useCities } from './src/cities';
-import { newAlarm, useAlarms } from './src/alarms';
+import { Alarm, useAlarms } from './src/alarms';
+import { AlarmEditor } from './src/components/AlarmEditor';
 
 // Текущее время, обновляется раз в секунду
 function useNow() {
@@ -26,12 +27,28 @@ export default function App() {
   const { cities, addCity, removeCity } = useCities();
   const [searchOpen, setSearchOpen] = useState(false);
   const [cityToRemove, setCityToRemove] = useState<City | null>(null);
-  const { alarms, addAlarm, toggleAlarm, removeAlarms } = useAlarms();
+  const { alarms, addAlarm, updateAlarm, toggleAlarm, removeAlarms } = useAlarms();
 
-  // ВРЕМЕННО (до экрана «Новый будильник»): «+» ставит тестовый будильник через 2 минуты
-  const addTestAlarm = () => {
-    const t = new Date(Date.now() + 2 * 60 * 1000);
-    addAlarm(newAlarm(t.getHours(), t.getMinutes(), { note: 'Тест', melody: 'pixel' }));
+  // Экран будильника: editing = null → новый, иначе редактируем этот
+  const [editorOpen, setEditorOpen] = useState(false);
+  const [editing, setEditing] = useState<Alarm | null>(null);
+
+  const openNewAlarm = () => {
+    setEditing(null);
+    setEditorOpen(true);
+  };
+  const openEditAlarm = (a: Alarm) => {
+    setEditing(a);
+    setEditorOpen(true);
+  };
+  const saveAlarm = (a: Alarm) => {
+    if (alarms.some((x) => x.id === a.id)) updateAlarm(a.id, a);
+    else addAlarm(a);
+    setEditorOpen(false);
+  };
+  const deleteAlarm = (id: string) => {
+    removeAlarms([id]);
+    setEditorOpen(false);
   };
 
   const pickCity = (city: City) => {
@@ -82,10 +99,24 @@ export default function App() {
           ))}
         </View>
 
-        <AlarmCard alarms={alarms} onAdd={addTestAlarm} onToggle={toggleAlarm} onDelete={removeAlarms} />
+        <AlarmCard
+          alarms={alarms}
+          onAdd={openNewAlarm}
+          onEdit={openEditAlarm}
+          onToggle={toggleAlarm}
+          onDelete={removeAlarms}
+        />
       </ScrollView>
 
       <CitySearchModal visible={searchOpen} onClose={() => setSearchOpen(false)} onPick={pickCity} />
+
+      <AlarmEditor
+        visible={editorOpen}
+        alarm={editing}
+        onSave={saveAlarm}
+        onDelete={deleteAlarm}
+        onClose={() => setEditorOpen(false)}
+      />
 
       <ConfirmDialog
         visible={!!cityToRemove}

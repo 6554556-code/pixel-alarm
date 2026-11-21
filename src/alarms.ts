@@ -111,7 +111,9 @@ export function useAlarms() {
   const [alarms, setAlarms] = useState<Alarm[]>([]);
   const alarmsRef = useRef<Alarm[]>([]); // всегда свежий список для async-функций
 
-  const commit = useCallback((next: Alarm[]) => {
+  const commit = useCallback((list: Alarm[]) => {
+    // Всегда по времени: от раннего к позднему
+    const next = [...list].sort((a, b) => a.hour * 60 + a.minute - (b.hour * 60 + b.minute));
     alarmsRef.current = next;
     setAlarms(next);
     AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(next)).catch(() => {});
@@ -146,8 +148,7 @@ export function useAlarms() {
 
   const addAlarm = useCallback(
     (alarm: Alarm) => {
-      const next = [...alarmsRef.current, alarm].sort((a, b) => a.hour * 60 + a.minute - (b.hour * 60 + b.minute));
-      commit(next);
+      commit([...alarmsRef.current, alarm]);
       syncWithReport(alarm);
     },
     [commit, syncWithReport],

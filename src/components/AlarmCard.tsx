@@ -15,6 +15,7 @@ import { getMelody } from '../melodies';
 type Props = {
   alarms: Alarm[];
   onAdd: () => void;
+  onEdit: (alarm: Alarm) => void;
   onToggle: (id: string) => void;
   onDelete: (ids: string[]) => void;
 };
@@ -38,7 +39,7 @@ function TrashIcon({ color = '#FFFFFF', size = 16 }: { color?: string; size?: nu
   );
 }
 
-export function AlarmCard({ alarms, onAdd, onToggle, onDelete }: Props) {
+export function AlarmCard({ alarms, onAdd, onEdit, onToggle, onDelete }: Props) {
   // null — обычный режим; Set — режим удаления, внутри id помеченных на удаление
   const [marked, setMarked] = useState<Set<string> | null>(null);
   const deleting = marked !== null;
@@ -82,9 +83,11 @@ export function AlarmCard({ alarms, onAdd, onToggle, onDelete }: Props) {
           </Pressable>
         )}
         <View style={{ flex: 1 }} />
-        <Pressable style={styles.pill} onPress={deleting ? cancelDeleting : startDeleting}>
-          <Text style={styles.pillText}>{deleting ? 'Отмена' : 'Удалить все'}</Text>
-        </Pressable>
+        {alarms.length > 0 && (
+          <Pressable style={styles.pill} onPress={deleting ? cancelDeleting : startDeleting}>
+            <Text style={styles.pillText}>{deleting ? 'Отмена' : 'Удалить все'}</Text>
+          </Pressable>
+        )}
       </View>
 
       {alarms.map((a, i) => {
@@ -93,8 +96,7 @@ export function AlarmCard({ alarms, onAdd, onToggle, onDelete }: Props) {
         return (
           <Pressable
             key={a.id}
-            disabled={!deleting}
-            onPress={() => toggleMark(a.id)}
+            onPress={() => (deleting ? toggleMark(a.id) : onEdit(a))}
             style={[
               styles.row,
               highlighted && styles.rowActive,

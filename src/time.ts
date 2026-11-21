@@ -80,3 +80,28 @@ export function dayShiftLabel(shift: number) {
   if (shift === -1) return 'вчера';
   return null;
 }
+
+// --- Для будильников (время телефона) ---
+
+// День недели по ISO: 1 = понедельник … 7 = воскресенье
+export const isoWeekday = (d: Date) => ((d.getDay() + 6) % 7) + 1;
+
+// Когда будильник зазвонит в следующий раз
+export function nextRing(hour: number, minute: number, weekdays: number[], from = new Date()): Date {
+  for (let i = 0; i <= 7; i++) {
+    const d = new Date(from.getFullYear(), from.getMonth(), from.getDate() + i, hour, minute, 0, 0);
+    if (d > from && (weekdays.length === 0 || weekdays.includes(isoWeekday(d)))) return d;
+  }
+  return new Date(from.getTime() + 7 * 86_400_000); // сюда не попадём, но TypeScript просит
+}
+
+// «7 ч 12 мин», «2 дн. 3 ч», «15 мин»
+export function formatDuration(ms: number) {
+  const total = Math.max(1, Math.ceil(ms / 60_000));
+  const d = Math.floor(total / 1440);
+  const h = Math.floor((total % 1440) / 60);
+  const m = total % 60;
+  if (d > 0) return h > 0 ? `${d} дн. ${h} ч` : `${d} дн.`;
+  if (h > 0) return m > 0 ? `${h} ч ${m} мин` : `${h} ч`;
+  return `${m} мин`;
+}
