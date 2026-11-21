@@ -1,25 +1,59 @@
 {
   "expo": {
-    "name": "pixel-alarm",
+    "name": "Pixel Alarm",
     "slug": "pixel-alarm",
+    "scheme": "pixelalarm",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "automatic",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": false,
+      "bundleIdentifier": "app.ebookee.pixelalarm",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
+      "package": "app.ebookee.pixelalarm",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.MODIFY_AUDIO_SETTINGS",
+        "android.permission.FOREGROUND_SERVICE",
+        "android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      [
+        "react-native-alarm-scheduler",
+        {
+          "alarmKitUsageDescription": "Pixel Alarm ставит будильники, которые звонят даже в беззвучном режиме."
+        }
+      ],
+      [
+        "expo-audio",
+        {
+          "microphonePermission": "Pixel Alarm использует микрофон, чтобы ты могла записать свой голос для напоминания."
+        }
+      ],
+      "expo-notifications",
+      "expo-asset",
+      "expo-font"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "f53fb939-f07d-40c7-8930-125a70c5cc28"
+      }
     }
   }
 }
