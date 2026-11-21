@@ -1,17 +1,13 @@
 // Главный экран «Часы и будильники»
 
 import { useEffect, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { theme } from './src/theme';
 import { AddCitySlot, CityClock } from './src/components/CityClock';
 import { AlarmCard } from './src/components/AlarmCard';
-
-// Пока города захардкожены. На шаге «Города» сделаем выбор и сохранение.
-const CITIES = [
-  { id: 'msk', name: 'Москва', timeZone: 'Europe/Moscow', color: theme.colors.accent, lat: 55.7558, lon: 37.6173 },
-  { id: 'seoul', name: 'Сеул', timeZone: 'Asia/Seoul', color: theme.colors.accentAlt, lat: 37.5665, lon: 126.978 },
-];
+import { CitySearchModal } from './src/components/CitySearchModal';
+import { CITY_COLORS, City, MAX_CITIES, useCities } from './src/cities';
 
 // Текущее время, обновляется раз в секунду
 function useNow() {
@@ -25,6 +21,23 @@ function useNow() {
 
 export default function App() {
   const now = useNow();
+  const { cities, addCity, removeCity } = useCities();
+  const [searchOpen, setSearchOpen] = useState(false);
+
+  const pickCity = (city: City) => {
+    addCity(city);
+    setSearchOpen(false);
+  };
+
+  // Долгое нажатие на город → спросить, удалить ли
+  const askRemove = (city: City) =>
+    Alert.alert(city.name, 'Убрать этот город с экрана?', [
+      { text: 'Отмена', style: 'cancel' },
+      { text: 'Удалить', style: 'destructive', onPress: () => removeCity(city.id) },
+    ]);
+
+  // Пустые слоты до трёх — в каждом кнопка «Добавить»
+  const emptySlots = Math.max(0, MAX_CITIES - cities.length);
 
   return (
     <View style={styles.screen}>
@@ -43,22 +56,27 @@ export default function App() {
 
         {/* Три слота с часами */}
         <View style={styles.clocks}>
-          {CITIES.map((c) => (
+          {cities.map((c, i) => (
             <CityClock
               key={c.id}
               name={c.name}
               timeZone={c.timeZone}
               now={now}
-              color={c.color}
+              color={CITY_COLORS[i % CITY_COLORS.length]}
               lat={c.lat}
               lon={c.lon}
+              onLongPress={() => askRemove(c)}
             />
           ))}
-          <AddCitySlot />
+          {Array.from({ length: emptySlots }, (_, i) => (
+            <AddCitySlot key={`add-${i}`} onPress={() => setSearchOpen(true)} />
+          ))}
         </View>
 
         <AlarmCard />
       </ScrollView>
+
+      <CitySearchModal visible={searchOpen} onClose={() => setSearchOpen(false)} onPick={pickCity} />
     </View>
   );
 }

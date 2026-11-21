@@ -1,6 +1,6 @@
 // Один слот с часами: циферблат, город, время, дата, погода.
 
-import { StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { theme } from '../theme';
 import { ClockFace } from './ClockFace';
 import { WeatherIcon } from './WeatherIcon';
@@ -14,14 +14,15 @@ type Props = {
   color: string; // цвет акцента этого города
   lat: number;
   lon: number;
+  onLongPress?: () => void; // долгое нажатие — меню города (удалить)
 };
 
-export function CityClock({ name, timeZone, now, color, lat, lon }: Props) {
+export function CityClock({ name, timeZone, now, color, lat, lon, onLongPress }: Props) {
   const t = getZonedTime(now, timeZone);
   const weather = useWeather(lat, lon);
 
   return (
-    <View style={styles.slot}>
+    <Pressable style={styles.slot} onLongPress={onLongPress} delayLongPress={400}>
       <View style={styles.dial}>
         <ClockFace color={color} hour={t.hour} minute={t.minute} second={t.second} />
       </View>
@@ -44,14 +45,14 @@ export function CityClock({ name, timeZone, now, color, lat, lon }: Props) {
           <Text style={styles.chipText}>…</Text>
         )}
       </View>
-    </View>
+    </Pressable>
   );
 }
 
 // Третий слот: «Добавить город»
-export function AddCitySlot() {
+export function AddCitySlot({ onPress }: { onPress: () => void }) {
   return (
-    <View style={styles.slot}>
+    <Pressable style={({ pressed }) => [styles.slot, pressed && { opacity: 0.6 }]} onPress={onPress}>
       <View style={styles.dial}>
         <ClockFace color={theme.colors.cardBorder} empty />
         {/* «Плюс» поверх пустого циферблата */}
@@ -63,7 +64,7 @@ export function AddCitySlot() {
       <View style={[styles.chip, styles.addChip]}>
         <Text style={styles.chipText}>Новый город</Text>
       </View>
-    </View>
+    </Pressable>
   );
 }
 

@@ -11,6 +11,7 @@ export const theme = {
     textMuted: '#6E6A80',
     accent: '#8B6CF0', // фиолетовый: активные элементы, Москва
     accentAlt: '#4CC3DE', // бирюзовый: второй город
+    accent3: '#EE8CC0', // розовый: третий город
     danger: '#E5575B',
     switchOff: '#D9D6E3',
   },
