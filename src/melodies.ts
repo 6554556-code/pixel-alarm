@@ -4,16 +4,46 @@
 
 import { Asset } from 'expo-asset';
 
+// Разделы библиотеки звуков. Порядок здесь = порядок на экране.
+// Иконки — твои рисунки (assets/categories), белые на прозрачном → красятся в любой цвет темы.
+export const CATEGORIES = [
+  { id: 'sleep', name: 'Сон', icon: require('../assets/categories/sleep.png') },
+  { id: 'baby', name: 'Ребёнок', icon: require('../assets/categories/baby.png') },
+  { id: 'pets', name: 'Животные', icon: require('../assets/categories/pets.png') },
+  { id: 'meds', name: 'Лекарства', icon: require('../assets/categories/meds.png') },
+  { id: 'car', name: 'Машина', icon: require('../assets/categories/car.png') },
+  { id: 'food', name: 'Еда', icon: require('../assets/categories/food.png') },
+  { id: 'home', name: 'Дом', icon: require('../assets/categories/home.png') },
+  { id: 'sport', name: 'Спорт', icon: require('../assets/categories/sport.png') },
+  { id: 'study', name: 'Учёба', icon: require('../assets/categories/study.png') },
+  { id: 'tv', name: 'ТВ', icon: require('../assets/categories/tv.png') },
+  { id: 'games', name: 'Игры', icon: require('../assets/categories/games.png') },
+  { id: 'travel', name: 'Путешествия', icon: require('../assets/categories/travel.png') },
+] as const;
+
+export type CategoryId = (typeof CATEGORIES)[number]['id'];
+
+export function getCategory(id: CategoryId) {
+  return CATEGORIES.find((c) => c.id === id) ?? CATEGORIES[0];
+}
+
 export type Melody = {
   id: string;
   name: string;
+  category: CategoryId;
   file: number; // результат require(...)
 };
 
+// Новая мелодия: файл в assets/sounds + строчка здесь (раздел — один из CATEGORIES)
 export const MELODIES: Melody[] = [
-  { id: 'sunrise', name: 'Sunrise', file: require('../assets/sounds/chip_sunrise.caf') },
-  { id: 'pixel', name: 'Pixel', file: require('../assets/sounds/chip_pixel.caf') },
+  { id: 'sunrise', name: 'Sunrise', category: 'sleep', file: require('../assets/sounds/chip_sunrise.caf') },
+  { id: 'pixel', name: 'Pixel', category: 'games', file: require('../assets/sounds/chip_pixel.caf') },
 ];
+
+// Мелодии раздела по алфавиту
+export function melodiesIn(category: CategoryId) {
+  return MELODIES.filter((m) => m.category === category).sort((a, b) => a.name.localeCompare(b.name, 'ru'));
+}
 
 export const DEFAULT_MELODY = 'sunrise';
 

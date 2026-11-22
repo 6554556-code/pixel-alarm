@@ -6,7 +6,8 @@ import { Modal, Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View
 import { setAudioModeAsync, useAudioPlayer, useAudioPlayerStatus } from 'expo-audio';
 import { theme } from '../theme';
 import { Alarm, Weekday, newAlarm } from '../alarms';
-import { MELODIES, getMelody } from '../melodies';
+import { CATEGORIES, CategoryId, getMelody, melodiesIn } from '../melodies';
+import { CategoryIcon } from './CategoryIcon';
 import { formatDuration, nextRing } from '../time';
 import { WHEEL_ITEM_H, WHEEL_VISIBLE, WheelPicker } from './WheelPicker';
 import { Slider } from './Slider';
@@ -49,6 +50,8 @@ export function AlarmEditor({ visible, alarm, onSave, onDelete, onClose }: Props
   // Черновик: всё, что меняем на экране, до нажатия ✓
   const [draft, setDraft] = useState<Alarm>(() => newAlarm(7, 0));
   const [page, setPage] = useState<'main' | 'melody'>('main');
+  // Фильтр на странице мелодий: null = все разделы
+  const [filter, setFilter] = useState<CategoryId | null>(null);
   const [now, setNow] = useState(() => new Date());
   // Номер «сеанса» открытия: барабаны пересоздаются и встают на время нового черновика
   const [session, setSession] = useState(0);
@@ -173,9 +176,16 @@ export function AlarmEditor({ visible, alarm, onSave, onDelete, onClose }: Props
 
                 <View style={styles.divider} />
 
-                <Pressable style={styles.row} onPress={() => setPage('melody')}>
+                <Pressable
+                  style={styles.row}
+                  onPress={() => {
+                    setFilter(null);
+                    setPage('melody');
+                  }}
+                >
                   <NoteIcon />
                   <Text style={styles.rowLabel}>Мелодия</Text>
+                  <CategoryIcon id={getMelody(draft.melody).category} size={18} />
                   <Text style={styles.rowValue}>{getMelody(draft.melody).name}</Text>
                   <ChevronRight size={18} color={theme.colors.textMuted} />
                 </Pressable>
@@ -240,25 +250,61 @@ export function AlarmEditor({ visible, alarm, onSave, onDelete, onClose }: Props
               <View style={{ width: 48 }} />
             </View>
 
+            {/* Иконки разделов: тап — показать только этот раздел, повторный тап — снова все */}
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              style={styles.filterBar}
+              contentContainerStyle={styles.filterContent}
+            >
+              {CATEGORIES.map((c) => {
+                const active = filter === c.id;
+                const empty = melodiesIn(c.id).length === 0;
+                return (
+                  <Pressable
+                    key={c.id}
+                    disabled={empty}
+                    onPress={() => setFilter(active ? null : c.id)}
+                    style={[styles.filterBtn, active && styles.filterBtnOn, empty && { opacity: 0.35 }]}
+                  >
+                    <CategoryIcon id={c.id} size={26} color={active ? '#FFFFFF' : theme.colors.accent} />
+                  </Pressable>
+                );
+              })}
+            </ScrollView>
+
+            {/* Разделы с мелодиями (пустые не показываем) */}
             <ScrollView contentContainerStyle={styles.content}>
-              <View style={styles.card}>
-                {MELODIES.map((m, i) => {
-                  const selected = draft.melody === m.id;
-                  const playing = previewing === m.id;
-                  return (
-                    <View key={m.id}>
-                      {i > 0 && <View style={styles.divider} />}
-                      <Pressable style={styles.row} onPress={() => set({ melody: m.id })}>
-                        <RadioDot on={selected} />
-                        <Text style={[styles.rowLabel, selected && { fontWeight: '600' }]}>{m.name}</Text>
-                        <Pressable style={styles.playBtn} onPress={() => togglePreview(m.id)} hitSlop={8}>
-                          {playing ? <PauseIcon /> : <PlayIcon />}
-                        </Pressable>
-                      </Pressable>
+              {CATEGORIES.filter((c) => !filter || c.id === filter).map((c) => {
+                const list = melodiesIn(c.id);
+                if (list.length === 0) return null;
+                return (
+                  <View key={c.id} style={styles.section}>
+                    <View style={styles.sectionHead}>
+                      <CategoryIcon id={c.id} size={22} />
+                      <Text style={styles.sectionTitle}>{c.name}</Text>
                     </View>
-                  );
-                })}
-              </View>
+                    <View style={styles.card}>
+                      {list.map((m, i) => {
+                        const selected = draft.melody === m.id;
+                        const playing = previewing === m.id;
+                        return (
+                          <View key={m.id}>
+                            {i > 0 && <View style={styles.divider} />}
+                            <Pressable style={styles.row} onPress={() => set({ melody: m.id })}>
+                              <RadioDot on={selected} />
+                              <Text style={[styles.rowLabel, selected && { fontWeight: '600' }]}>{m.name}</Text>
+                              <Pressable style={styles.playBtn} onPress={() => togglePreview(m.id)} hitSlop={8}>
+                                {playing ? <PauseIcon /> : <PlayIcon />}
+                              </Pressable>
+                            </Pressable>
+                          </View>
+                        );
+                      })}
+                    </View>
+                  </View>
+                );
+              })}
             </ScrollView>
           </>
         )}
@@ -340,6 +386,26 @@ const styles = StyleSheet.create({
   snoozeHead: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 2 },
   snoozeLabel: { fontSize: 15, color: theme.colors.textMuted },
   snoozeValue: { fontSize: 15, fontWeight: '600', color: theme.colors.accent, fontVariant: ['tabular-nums'] },
+
+  filterBar: { flexGrow: 0, marginTop: 8, marginBottom: 4 },
+  filterContent: { paddingHorizontal: 16, gap: 10 },
+  filterBtn: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...glass,
+    backgroundColor: 'rgba(255,255,255,0.85)',
+  },
+  filterBtnOn: {
+    backgroundColor: theme.colors.accent,
+    borderColor: theme.colors.accent,
+    boxShadow: '0 3px 12px rgba(139,108,240,0.45)',
+  },
+  section: { marginTop: 16 },
+  sectionHead: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8, paddingHorizontal: 4 },
+  sectionTitle: { fontSize: 17, fontWeight: '700', color: theme.colors.text },
 
   playBtn: {
     width: 36,
