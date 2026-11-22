@@ -60,6 +60,20 @@ export const MELODIES: Melody[] = [
   // Еда
   { id: 'oven_hot_thing_ready', name: 'Твоя горячая штучка готова', category: 'food', sub: 'oven', voice: 'f', file: require('../assets/sounds/food_oven_hot_thing_ready.mp3') },
   { id: 'oven_damn_hot', name: 'Чертовски горячее', category: 'food', sub: 'oven', voice: 'f', file: require('../assets/sounds/food_oven_damn_hot.mp3') },
+  { id: 'food_brew_tea', name: 'Завари чай', category: 'food', voice: 'f', file: require('../assets/sounds/food_brew_tea.mp3') },
+  { id: 'food_earned_espresso', name: 'Ты заслужила эспрессо', category: 'food', voice: 'f', file: require('../assets/sounds/food_earned_espresso.mp3') },
+  { id: 'food_drink_coffee', name: 'Выпить кофе', category: 'food', voice: 'f', file: require('../assets/sounds/food_drink_coffee.mp3') },
+  { id: 'food_only_salads', name: 'Только салаты', category: 'food', voice: 'f', file: require('../assets/sounds/food_only_salads.mp3') },
+  { id: 'food_oven_time_to_take_out', name: 'Пора вынимать', category: 'food', sub: 'oven', voice: 'f', file: require('../assets/sounds/food_oven_time_to_take_out.mp3') },
+  { id: 'food_oven_take_out_pie', name: 'Доставай пирог', category: 'food', sub: 'oven', voice: 'f', file: require('../assets/sounds/food_oven_take_out_pie.mp3') },
+  { id: 'food_order_pizza', name: 'Закажи пиццу', category: 'food', voice: 'f', file: require('../assets/sounds/food_order_pizza.mp3') },
+  { id: 'food_restaurant', name: 'Ресторан', category: 'food', voice: 'f', file: require('../assets/sounds/food_restaurant.mp3') },
+  { id: 'food_time_to_feast', name: 'Пора красиво пожрать', category: 'food', voice: 'f', file: require('../assets/sounds/food_time_to_feast.mp3') },
+  { id: 'food_breakfast', name: 'Завтрак', category: 'food', voice: 'f', file: require('../assets/sounds/food_breakfast.mp3') },
+  { id: 'food_turn_on_stove', name: 'Включай плиту', category: 'food', voice: 'f', file: require('../assets/sounds/food_turn_on_stove.mp3') },
+  { id: 'food_dinner_waits', name: 'Ужин ждёт', category: 'food', voice: 'f', file: require('../assets/sounds/food_dinner_waits.mp3') },
+  { id: 'food_march_to_lunch', name: 'Марш на обед', category: 'food', voice: 'f', file: require('../assets/sounds/food_march_to_lunch.mp3') },
+  { id: 'food_no_lunch_yet', name: 'Ты же не обедала', category: 'food', voice: 'f', file: require('../assets/sounds/food_no_lunch_yet.mp3') },
 
   // Дом
   { id: 'laundry_hang_wet_guys', name: 'Развесить мокрых парней', category: 'home', sub: 'laundry', voice: 'f', file: require('../assets/sounds/home_laundry_hang_wet_guys.mp3') },
