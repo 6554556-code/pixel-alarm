@@ -75,7 +75,7 @@ const ring2 = peel(ring1.rest);
 const inner = peel(ring2.rest);
 
 // Отрезок от центра под углом (градусы от «12 часов» по часовой), толщина в клетках
-function rayCells(angleDeg: number, from: number, to: number, thick = 0): Cell[] {
+function rayCells(angleDeg: number, from: number, to: number, thick = 0, c = C): Cell[] {
   const a = (angleDeg * Math.PI) / 180;
   const sx = Math.sin(a);
   const sy = -Math.cos(a);
@@ -83,8 +83,8 @@ function rayCells(angleDeg: number, from: number, to: number, thick = 0): Cell[]
   const offsets = thick > 0 ? [-thick / 2, 0, thick / 2] : [0];
   for (let t = from; t <= to; t += 0.25)
     for (const o of offsets) {
-      const x = C + t * sx + o * -sy;
-      const y = C + t * sy + o * sx;
+      const x = c + t * sx + o * -sy;
+      const y = c + t * sy + o * sx;
       out.push([Math.floor(x), Math.floor(y)]);
     }
   return uniq(out);
@@ -110,5 +110,20 @@ export function handsPath(hour: number, minute: number, second = 0) {
   return {
     hour: cellsToRuns(rayCells(hourAngle, 0, 7.2, 1.2)),
     minute: cellsToRuns(rayCells(minuteAngle, 0, 11)),
+  };
+}
+
+// --- Стрелки поверх нарисованных циферблатов (твои картинки) ---
+// Сетка мельче (61×61), чтобы стрелки были плавнее — «побольше пикселей».
+export const HAND_GRID = 61;
+const HC = HAND_GRID / 2;
+
+export function fineHands(hour: number, minute: number, second = 0) {
+  const minuteAngle = Math.round((minute + second / 60) * 6);
+  const hourAngle = ((hour % 12) + minute / 60) * 30;
+  // Стрелки начинаются за центральным квадратиком циферблата, чтобы его не закрывать
+  return {
+    hour: cellsToRuns(rayCells(hourAngle, 4.2, 15, 2.4, HC)),
+    minute: cellsToRuns(rayCells(minuteAngle, 4.2, 22.5, 1.5, HC)),
   };
 }

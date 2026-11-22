@@ -4,7 +4,7 @@ import { ReactNode, useState } from 'react';
 import { Image, PixelRatio, Pressable, StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { THEME_OBJECTS } from '../theme';
-import { DIAL, GRID, Run, handsPath } from '../pixelDial';
+import { HAND_GRID, Run, fineHands } from '../pixelDial';
 
 const P = THEME_OBJECTS.pixel.colors;
 
@@ -111,8 +111,24 @@ function Layer({ runs, cell, color, opacity = 1 }: { runs: Run[]; cell: number; 
   );
 }
 
-// Пиксельный циферблат на сетке 31×31.
-// Размер клетки подбираем так, чтобы она была целым числом пикселей экрана — тогда ничего не мылится.
+// Твои нарисованные циферблаты и неоновая обводка к каждому
+const DIALS = {
+  1: { image: require('../../assets/pixel/dial_1.png'), neon: '#C04DFF' },
+  2: { image: require('../../assets/pixel/dial_2.png'), neon: '#22D3FF' },
+  3: { image: require('../../assets/pixel/dial_3.png'), neon: '#FF2EC4' },
+  add: { image: require('../../assets/pixel/dial_add.png'), neon: '#B5A8FF' },
+};
+
+// Какой циферблат взять: по цвету города (1-й, 2-й, 3-й) или «добавить»
+function dialFor(color: string, empty: boolean) {
+  if (empty) return DIALS.add;
+  const c = THEME_OBJECTS.classic.colors;
+  if (color === c.accentAlt) return DIALS[2];
+  if (color === c.accent3) return DIALS[3];
+  return DIALS[1];
+}
+
+// Нарисованный циферблат + неоновая обводка + чёткие пиксельные стрелки
 export function PixelClockFace({
   color,
   hour = 0,
@@ -127,32 +143,35 @@ export function PixelClockFace({
   empty?: boolean;
 }) {
   const [width, setWidth] = useState(0);
+  const dial = dialFor(color, empty);
   const ratio = PixelRatio.get();
-  const cell = Math.floor((width / GRID) * ratio) / ratio; // целое число физических пикселей
-  const size = cell * GRID;
+  // Клетка стрелок — целое число пикселей экрана, иначе края мылятся
+  const cell = Math.floor((width / HAND_GRID) * ratio) / ratio;
+  const size = cell * HAND_GRID;
   const offset = PixelRatio.roundToNearestPixel((width - size) / 2);
-  const hands = handsPath(hour, minute, second);
-  const ring = empty ? '#C9C2DE' : color;
+  const hands = fineHands(hour, minute, second);
 
   return (
     <View style={styles.dial} onLayout={(e) => setWidth(e.nativeEvent.layout.width)}>
-      {cell > 0 && (
+      {/* Неоновое кольцо: обычное, гладкое, со свечением */}
+      <View style={[styles.neon, { borderColor: dial.neon, shadowColor: dial.neon }]} />
+      <Image source={dial.image} style={StyleSheet.absoluteFill} resizeMode="contain" />
+      {!empty && cell > 0 && (
         <View style={{ position: 'absolute', left: offset, top: offset, width: size, height: size }}>
-          <Layer runs={DIAL.glowOuter} cell={cell} color={ring} opacity={0.25} />
-          <Layer runs={DIAL.fill} cell={cell} color="#FFFFFF" />
-          <Layer runs={DIAL.glowInner} cell={cell} color={ring} opacity={0.2} />
-          <Layer runs={DIAL.ring} cell={cell} color={ring} />
-          <Layer runs={DIAL.ticks} cell={cell} color={P.text} opacity={empty ? 0.3 : 1} />
-          {!empty && (
-            <>
-              <Layer runs={hands.hour} cell={cell} color={P.text} />
-              <Layer runs={hands.minute} cell={cell} color={P.text} />
-              <Layer runs={DIAL.center} cell={cell} color={color} />
-              <Layer runs={DIAL.centerDot} cell={cell} color={P.text} />
-            </>
-          )}
+          <Layer runs={hands.hour} cell={cell} color="#111018" />
+          <Layer runs={hands.minute} cell={cell} color="#111018" />
         </View>
       )}
+    </View>
+  );
+}
+
+// Кнопка «добавить» в виде маленького серого циферблата с плюсом (для будильников)
+export function PixelAddDial({ size = 44 }: { size?: number }) {
+  return (
+    <View style={{ width: size, height: size }}>
+      <View style={[styles.neon, { borderColor: DIALS.add.neon, shadowColor: DIALS.add.neon, borderWidth: 1.5 }]} />
+      <Image source={DIALS.add.image} style={StyleSheet.absoluteFill} resizeMode="contain" />
     </View>
   );
 }
@@ -163,4 +182,16 @@ const styles = StyleSheet.create({
   knobOn: { left: 56 - 5 - 20 },
   knobOff: { left: 5 },
   dial: { width: '100%', aspectRatio: 1 },
+  neon: {
+    position: 'absolute',
+    top: -3,
+    left: -3,
+    right: -3,
+    bottom: -3,
+    borderRadius: 999,
+    borderWidth: 2,
+    shadowOpacity: 0.9,
+    shadowRadius: 7,
+    shadowOffset: { width: 0, height: 0 },
+  },
 });

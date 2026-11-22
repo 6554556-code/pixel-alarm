@@ -9,7 +9,7 @@ import { useState } from 'react';
 import { LayoutAnimation, Pressable, StyleSheet, Switch, Text, View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { fontOf, theme, useTheme } from '../theme';
-import { PixelBox, PixelIcon, PixelSwitch } from './Pixel';
+import { PixelAddDial, PixelBox, PixelSwitch } from './Pixel';
 import { Alarm, formatAlarmTime, formatRepeat } from '../alarms';
 import { getMelody } from '../melodies';
 import { formatCountdownShort, nextRing } from '../time';
@@ -86,9 +86,7 @@ export function AlarmCard({ alarms, onAdd, onEdit, onToggle, onDelete }: Props) 
         {!deleting &&
           (px ? (
             <Pressable onPress={onAdd} hitSlop={6}>
-              <PixelBox style={styles.pxRoundBtn}>
-                <PixelIcon name="plus" size={24} />
-              </PixelBox>
+              <PixelAddDial size={44} />
             </Pressable>
           ) : (
             <Pressable style={styles.roundBtn} onPress={onAdd}>

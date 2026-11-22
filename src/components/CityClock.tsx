@@ -3,7 +3,7 @@
 import { ReactNode } from 'react';
 import { Pressable, StyleProp, StyleSheet, Text, View, ViewStyle } from 'react-native';
 import { fontOf, theme, useTheme } from '../theme';
-import { PixelBox, PixelIcon } from './Pixel';
+import { PixelBox } from './Pixel';
 import { ClockFace } from './ClockFace';
 import { WeatherIcon } from './WeatherIcon';
 import { formatDate, formatTime, getZonedTime } from '../time';
@@ -82,7 +82,8 @@ export function AddCitySlot({ onPress }: { onPress: () => void }) {
         <ClockFace color={theme.colors.cardBorder} empty />
         {/* «Плюс» поверх пустого циферблата */}
         <View style={styles.plusLayer}>
-          {th.pixel ? <PixelIcon name="plus" size={36} /> : <Text style={styles.plus}>+</Text>}
+          {/* в пиксельной теме плюс уже нарисован на циферблате */}
+          {!th.pixel && <Text style={styles.plus}>+</Text>}
         </View>
       </View>
       <Text style={[styles.city, fontOf(th, 10.7)]}>Добавить</Text>
