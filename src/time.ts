@@ -105,3 +105,10 @@ export function formatDuration(ms: number) {
   if (h > 0) return m > 0 ? `${h} ч ${m} мин` : `${h} ч`;
   return `${m} мин`;
 }
+
+// Коротко для списка будильников: «4:05», а дальше суток — «2 дн.»
+export function formatCountdownShort(ms: number) {
+  const total = Math.max(1, Math.ceil(ms / 60_000));
+  if (total >= 1440) return `${Math.floor(total / 1440)} дн.`;
+  return `${Math.floor(total / 60)}:${String(total % 60).padStart(2, '0')}`;
+}

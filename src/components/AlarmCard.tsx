@@ -11,6 +11,7 @@ import Svg, { Path } from 'react-native-svg';
 import { theme } from '../theme';
 import { Alarm, formatAlarmTime, formatRepeat } from '../alarms';
 import { getMelody } from '../melodies';
+import { formatCountdownShort, nextRing } from '../time';
 
 type Props = {
   alarms: Alarm[];
@@ -113,6 +114,7 @@ export function AlarmCard({ alarms, onAdd, onEdit, onToggle, onDelete }: Props) 
               {!!a.note && <Text style={[styles.note, isMarked && styles.textMarked]}>{a.note}</Text>}
               <Text style={styles.melody}>
                 {formatRepeat(a.weekdays)} · {getMelody(a.melody).name}
+                {a.enabled && ` · через ${formatCountdownShort(nextRing(a.hour, a.minute, a.weekdays).getTime() - Date.now())}`}
               </Text>
             </View>
 

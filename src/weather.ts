@@ -19,7 +19,7 @@ const REFRESH_MS = 15 * 60 * 1000; // раз в 15 минут
 // Коды погоды WMO → наша категория и подпись (коротко, чтобы влезло в плашку)
 function describe(code: number): { kind: WeatherKind; label: string } {
   if (code === 0) return { kind: 'clear', label: 'Ясно' };
-  if (code === 1 || code === 2) return { kind: 'partly', label: 'Малооблачно' };
+  if (code === 1 || code === 2) return { kind: 'partly', label: 'Облачно' }; // иконка — солнце/луна за облаком
   if (code === 3) return { kind: 'cloudy', label: 'Облачно' };
   if (code === 45 || code === 48) return { kind: 'fog', label: 'Туман' };
   if (code >= 51 && code <= 57) return { kind: 'rain', label: 'Морось' };
