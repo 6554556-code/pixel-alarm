@@ -1,10 +1,10 @@
 // Детали пиксельной темы: рамки-«лесенки», переключатель, рисованные иконки, циферблат.
 
 import { ReactNode, useState } from 'react';
-import { Image, Pressable, StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
+import { Image, PixelRatio, Pressable, StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { THEME_OBJECTS } from '../theme';
-import { DIAL, GRID, handsPath } from '../pixelDial';
+import { DIAL, GRID, Run, handsPath } from '../pixelDial';
 
 const P = THEME_OBJECTS.pixel.colors;
 
@@ -89,7 +89,30 @@ export function PixelIcon({ name, size = 24 }: { name: PixelIconName; size?: num
   return <Image source={PIXEL_ICONS[name]} style={{ width: size, height: size }} resizeMode="contain" />;
 }
 
-// Пиксельный циферблат на сетке 31×31
+// Слой квадратиков: каждая полоска — обычный View, края ложатся ровно в пиксели экрана
+function Layer({ runs, cell, color, opacity = 1 }: { runs: Run[]; cell: number; color: string; opacity?: number }) {
+  return (
+    <>
+      {runs.map((r, i) => (
+        <View
+          key={i}
+          style={{
+            position: 'absolute',
+            left: r.x * cell,
+            top: r.y * cell,
+            width: r.w * cell,
+            height: cell,
+            backgroundColor: color,
+            opacity,
+          }}
+        />
+      ))}
+    </>
+  );
+}
+
+// Пиксельный циферблат на сетке 31×31.
+// Размер клетки подбираем так, чтобы она была целым числом пикселей экрана — тогда ничего не мылится.
 export function PixelClockFace({
   color,
   hour = 0,
@@ -103,25 +126,33 @@ export function PixelClockFace({
   second?: number;
   empty?: boolean;
 }) {
+  const [width, setWidth] = useState(0);
+  const ratio = PixelRatio.get();
+  const cell = Math.floor((width / GRID) * ratio) / ratio; // целое число физических пикселей
+  const size = cell * GRID;
+  const offset = PixelRatio.roundToNearestPixel((width - size) / 2);
   const hands = handsPath(hour, minute, second);
   const ring = empty ? '#C9C2DE' : color;
+
   return (
-    <View style={[styles.dial, { shadowColor: ring }]}>
-      <Svg width="100%" height="100%" viewBox={`0 0 ${GRID} ${GRID}`}>
-        <Path d={DIAL.glowOuter} fill={ring} fillOpacity={0.22} />
-        <Path d={DIAL.fill} fill="#FFFFFF" />
-        <Path d={DIAL.glowInner} fill={ring} fillOpacity={0.18} />
-        <Path d={DIAL.ring} fill={ring} />
-        <Path d={DIAL.ticks} fill={P.text} fillOpacity={empty ? 0.3 : 1} />
-        {!empty && (
-          <>
-            <Path d={hands.hour} fill={P.text} />
-            <Path d={hands.minute} fill={P.text} />
-            <Path d={DIAL.center} fill={color} />
-            <Path d={DIAL.centerDot} fill={P.text} />
-          </>
-        )}
-      </Svg>
+    <View style={styles.dial} onLayout={(e) => setWidth(e.nativeEvent.layout.width)}>
+      {cell > 0 && (
+        <View style={{ position: 'absolute', left: offset, top: offset, width: size, height: size }}>
+          <Layer runs={DIAL.glowOuter} cell={cell} color={ring} opacity={0.25} />
+          <Layer runs={DIAL.fill} cell={cell} color="#FFFFFF" />
+          <Layer runs={DIAL.glowInner} cell={cell} color={ring} opacity={0.2} />
+          <Layer runs={DIAL.ring} cell={cell} color={ring} />
+          <Layer runs={DIAL.ticks} cell={cell} color={P.text} opacity={empty ? 0.3 : 1} />
+          {!empty && (
+            <>
+              <Layer runs={hands.hour} cell={cell} color={P.text} />
+              <Layer runs={hands.minute} cell={cell} color={P.text} />
+              <Layer runs={DIAL.center} cell={cell} color={color} />
+              <Layer runs={DIAL.centerDot} cell={cell} color={P.text} />
+            </>
+          )}
+        </View>
+      )}
     </View>
   );
 }
@@ -131,5 +162,5 @@ const styles = StyleSheet.create({
   knob: { position: 'absolute', width: 20, height: 20 },
   knobOn: { left: 56 - 5 - 20 },
   knobOff: { left: 5 },
-  dial: { width: '100%', aspectRatio: 1, shadowOpacity: 0.3, shadowRadius: 6, shadowOffset: { width: 0, height: 2 } },
+  dial: { width: '100%', aspectRatio: 1 },
 });

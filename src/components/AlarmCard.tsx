@@ -47,7 +47,6 @@ export function AlarmCard({ alarms, onAdd, onEdit, onToggle, onDelete }: Props) 
   const deleting = marked !== null;
   const th = useTheme();
   const px = th.pixel;
-  const font = fontOf(th);
   // Каркас под тему: в пиксельной — рамки-«лесенки», в классике — стекло
   const Card = px ? PixelBox : View;
 
@@ -83,7 +82,7 @@ export function AlarmCard({ alarms, onAdd, onEdit, onToggle, onDelete }: Props) 
   return (
     <Card style={[styles.cardLayout, !px && styles.card]}>
       <View style={styles.header}>
-        <Text style={[styles.title, font]}>Будильник</Text>
+        <Text style={[styles.title, fontOf(th, 16)]}>Будильник</Text>
         {!deleting &&
           (px ? (
             <Pressable onPress={onAdd} hitSlop={6}>
@@ -101,7 +100,7 @@ export function AlarmCard({ alarms, onAdd, onEdit, onToggle, onDelete }: Props) 
           (px ? (
             <Pressable onPress={deleting ? cancelDeleting : startDeleting} hitSlop={6}>
               <PixelBox style={styles.pillLayout}>
-                <Text style={[styles.pillText, font]}>{deleting ? 'Отмена' : 'Удалить все'}</Text>
+                <Text style={[styles.pillText, fontOf(th, 8)]}>{deleting ? 'Отмена' : 'Удалить все'}</Text>
               </PixelBox>
             </Pressable>
           ) : (
@@ -132,9 +131,9 @@ export function AlarmCard({ alarms, onAdd, onEdit, onToggle, onDelete }: Props) 
             {highlighted && <View style={[styles.activeBar, px && styles.square]} />}
 
             <View style={{ flex: 1 }}>
-              <Text style={[styles.time, font, isMarked && styles.timeMarked]}>{formatAlarmTime(a)}</Text>
-              {!!a.note && <Text style={[styles.note, font, isMarked && styles.textMarked]}>{a.note}</Text>}
-              <Text style={[styles.melody, font]}>
+              <Text style={[styles.time, fontOf(th, 26.7), isMarked && styles.timeMarked]}>{formatAlarmTime(a)}</Text>
+              {!!a.note && <Text style={[styles.note, fontOf(th, 10.7), isMarked && styles.textMarked]}>{a.note}</Text>}
+              <Text style={[styles.melody, fontOf(th, 8)]}>
                 {formatRepeat(a.weekdays)} · {getMelody(a.melody).name}
                 {a.enabled && ` · через ${formatCountdownShort(nextRing(a.hour, a.minute, a.weekdays).getTime() - Date.now())}`}
               </Text>
@@ -159,7 +158,7 @@ export function AlarmCard({ alarms, onAdd, onEdit, onToggle, onDelete }: Props) 
         (px ? (
           <Pressable disabled={marked.size === 0} onPress={confirmDelete} style={marked.size === 0 && styles.deleteBtnDisabled}>
             <PixelBox style={styles.deleteBtnLayout} fill="#FDE3E4" stroke={theme.colors.danger}>
-              <Text style={[styles.deleteBtnText, font]}>
+              <Text style={[styles.deleteBtnText, fontOf(th, 10.7)]}>
                 {marked.size === 0 ? 'Ничего не выбрано' : `Удалить (${marked.size})`}
               </Text>
             </PixelBox>

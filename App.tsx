@@ -28,7 +28,7 @@ function useNow() {
 
 export default function App() {
   // Пиксельный шрифт (OFL, assets/fonts). Пока грузится — текст системным шрифтом.
-  useFonts({ Tiny5: require('./assets/fonts/Tiny5-Regular.ttf') });
+  useFonts({ PressStart2P: require('./assets/fonts/PressStart2P-Regular.ttf') });
   return (
     <SettingsProvider>
       <MainScreen />
@@ -55,7 +55,6 @@ function HeaderButton({ onPress, children }: { onPress?: () => void; children: R
 
 function MainScreen() {
   const th = useTheme();
-  const font = fontOf(th);
   const now = useNow();
   const [settingsOpen, setSettingsOpen] = useState(false);
   const { cities, addCity, removeCity } = useCities();
@@ -104,12 +103,12 @@ function MainScreen() {
       <ScrollView contentContainerStyle={styles.content}>
         {/* Шапка */}
         <View style={styles.header}>
-          <Text style={[styles.title, font, th.pixel && { fontSize: 30 }]}>Часы и будильники</Text>
+          <Text style={[styles.title, fontOf(th, 13.3)]}>Часы и будильники</Text>
           <HeaderButton onPress={() => setSettingsOpen(true)}>
             {th.pixel ? <PixelIcon name="gear" size={26} /> : <Text style={styles.iconText}>⚙︎</Text>}
           </HeaderButton>
           <HeaderButton>
-            <Text style={[styles.langText, font]}>RU</Text>
+            <Text style={[styles.langText, fontOf(th, 10.7)]}>RU</Text>
           </HeaderButton>
         </View>
 

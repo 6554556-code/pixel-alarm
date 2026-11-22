@@ -1,9 +1,9 @@
 // Темы оформления.
-// classic — стеклянная светлая (как было), pixel — пиксельная (шрифт Tiny5, «лесенки», рисованные иконки).
+// classic — стеклянная светлая (как было), pixel — пиксельная (шрифт Press Start 2P, «лесенки», рисованные иконки).
 // Старые компоненты пока импортируют `theme` напрямую — это классика.
 // Компоненты, которые уже умеют в темы, берут текущую через useTheme().
 
-import { TextStyle } from 'react-native';
+import { PixelRatio, TextStyle } from 'react-native';
 import { useSettings } from './settings';
 
 const classic = {
@@ -46,7 +46,7 @@ const pixel: Theme = {
     switchOff: '#DCD7EA',
   },
   radius: { card: 0, pill: 0 },
-  font: 'Tiny5',
+  font: 'PressStart2P',
 };
 
 export const theme: Theme = classic;
@@ -57,7 +57,18 @@ export function useTheme(): Theme {
   return themeId === 'pixel' ? pixel : classic;
 }
 
-// Текст в пиксельном шрифте: жирность у пиксельного шрифта не нужна — она его портит
-export function fontOf(t: Theme): TextStyle {
-  return t.font ? { fontFamily: t.font, fontWeight: 'normal' } : {};
+// Press Start 2P нарисован на сетке 8×8: буква чёткая, только если её «пиксель»
+// равен целому числу пикселей экрана. Подгоняем размер к ближайшему такому.
+export function crispSize(size: number) {
+  const unit = 8 / PixelRatio.get(); // размер шрифта, при котором 1 пиксель буквы = 1 пиксель экрана
+  return Math.max(2, Math.round(size / unit)) * unit;
+}
+
+// Текст под тему. pixelSize — размер в пиксельной теме (там буквы широкие, нужен свой размер).
+// Жирность у пиксельного шрифта не нужна — она его портит.
+export function fontOf(t: Theme, pixelSize?: number): TextStyle {
+  if (!t.font) return {};
+  if (!pixelSize) return { fontFamily: t.font, fontWeight: 'normal' };
+  const fontSize = crispSize(pixelSize);
+  return { fontFamily: t.font, fontWeight: 'normal', fontSize, lineHeight: Math.round(fontSize * 1.5) };
 }

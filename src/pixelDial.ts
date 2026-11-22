@@ -1,16 +1,39 @@
-// Геометрия пиксельного циферблата: всё рисуется квадратиками на сетке 32×32.
-// Каждый слой — один SVG-путь из квадратиков (так телефону легко перерисовывать каждую секунду).
+// Геометрия пиксельного циферблата: всё рисуется квадратиками на сетке 31×31.
+// Каждый слой — набор горизонтальных «полосок» (подряд идущие клетки в строке склеены),
+// которые потом рисуются обычными View: так края попадают ровно в пиксели экрана и не мылятся.
 
 export const GRID = 31; // нечётная сетка — центр ровно в клетке 15, всё симметрично
 const C = GRID / 2;
 
 type Cell = [number, number];
 
-// Склеиваем клетки в один путь: «M x y h1 v1 h-1 z» на каждую
-export function cellsToPath(cells: Iterable<Cell>) {
-  let d = '';
-  for (const [x, y] of cells) d += `M${x} ${y}h1v1h-1z`;
-  return d;
+export type Run = { x: number; y: number; w: number };
+
+// Склеиваем клетки строки в полоски: меньше элементов — быстрее рисуется
+export function cellsToRuns(cells: Iterable<Cell>): Run[] {
+  const rows = new Map<number, number[]>();
+  for (const [x, y] of cells) {
+    const r = rows.get(y) ?? [];
+    r.push(x);
+    rows.set(y, r);
+  }
+  const runs: Run[] = [];
+  for (const [y, xs] of rows) {
+    xs.sort((a, b) => a - b);
+    let start = xs[0];
+    let prev = xs[0];
+    for (let i = 1; i <= xs.length; i++) {
+      const x = xs[i];
+      if (x === prev || x === prev + 1) {
+        prev = Math.max(prev, x);
+        continue;
+      }
+      runs.push({ x: start, y, w: prev - start + 1 });
+      start = x;
+      prev = x;
+    }
+  }
+  return runs;
 }
 
 function uniq(cells: Cell[]): Cell[] {
@@ -69,23 +92,23 @@ function rayCells(angleDeg: number, from: number, to: number, thick = 0): Cell[]
 
 // Статичные слои (не меняются со временем) — считаем один раз
 export const DIAL = {
-  glowOuter: cellsToPath(glowLayer), // внешнее свечение
-  ring: cellsToPath([...ring1.edge, ...ring2.edge]), // контур в 2 клетки
-  glowInner: cellsToPath(inner.edge), // внутреннее свечение
-  fill: cellsToPath([...inner.edge, ...[...inner.rest].map((k) => k.split(',').map(Number) as Cell)]), // заливка
-  ticks: cellsToPath(
+  glowOuter: cellsToRuns(glowLayer), // внешнее свечение
+  ring: cellsToRuns([...ring1.edge, ...ring2.edge]), // контур в 2 клетки
+  glowInner: cellsToRuns(inner.edge), // внутреннее свечение
+  fill: cellsToRuns([...inner.edge, ...[...inner.rest].map((k) => k.split(',').map(Number) as Cell)]), // заливка
+  ticks: cellsToRuns(
     uniq(Array.from({ length: 12 }, (_, i) => rayCells(i * 30, i % 3 === 0 ? 9.5 : 10.8, 11.9)).flat()),
   ),
   // Центр: цветной квадрат 3×3 с тёмной серединкой
-  center: cellsToPath([14, 15, 16].flatMap((y) => [14, 15, 16].map((x) => [x, y] as Cell)).filter(([x, y]) => !(x === 15 && y === 15))),
-  centerDot: cellsToPath([[15, 15]]),
+  center: cellsToRuns([14, 15, 16].flatMap((y) => [14, 15, 16].map((x) => [x, y] as Cell)).filter(([x, y]) => !(x === 15 && y === 15))),
+  centerDot: cellsToRuns([[15, 15]]),
 };
 
 export function handsPath(hour: number, minute: number, second = 0) {
   const minuteAngle = Math.round(((minute + second / 60) * 6) / 6) * 6; // шаг 6° — пиксельно, без дрожи
   const hourAngle = ((hour % 12) + minute / 60) * 30;
   return {
-    hour: cellsToPath(rayCells(hourAngle, 0, 7.2, 1.2)),
-    minute: cellsToPath(rayCells(minuteAngle, 0, 11)),
+    hour: cellsToRuns(rayCells(hourAngle, 0, 7.2, 1.2)),
+    minute: cellsToRuns(rayCells(minuteAngle, 0, 11)),
   };
 }

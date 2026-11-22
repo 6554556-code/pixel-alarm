@@ -25,7 +25,7 @@ function Chip({ children, style, night, day }: { children: ReactNode; style?: St
   if (th.pixel) {
     return (
       <PixelBox
-        style={[styles.chipLayout, style]}
+        style={[styles.chipLayout, styles.chipLayoutPx, style]}
         fill={night ? '#E4E6FF' : '#FFFFFF'}
         stroke={th.colors.outline}
         glow={night ? '#7B86F2' : undefined}
@@ -40,30 +40,33 @@ function Chip({ children, style, night, day }: { children: ReactNode; style?: St
 export function CityClock({ name, timeZone, now, color, lat, lon, onLongPress }: Props) {
   const t = getZonedTime(now, timeZone);
   const weather = useWeather(lat, lon);
-  const font = fontOf(useTheme());
+  const th = useTheme();
 
   return (
     <Pressable style={styles.slot} onLongPress={onLongPress} delayLongPress={400}>
       <View style={styles.dial}>
         <ClockFace color={color} hour={t.hour} minute={t.minute} second={t.second} />
       </View>
-      <Text style={[styles.city, font]} numberOfLines={1}>{name}</Text>
-      <Text style={[styles.time, font]}>{formatTime(t)}</Text>
+      <Text style={[styles.city, fontOf(th, 10.7)]} numberOfLines={1} adjustsFontSizeToFit={th.pixel}>
+        {name}
+      </Text>
+      <Text style={[styles.time, fontOf(th, 21.3)]}>{formatTime(t)}</Text>
 
       <View style={styles.dateRow}>
-        <Text style={[styles.date, font]}>{formatDate(t)}</Text>
+        <Text style={[styles.date, fontOf(th, 8)]}>{formatDate(t)}</Text>
       </View>
 
       <Chip style={styles.weatherChip} day={weather?.isDay === true} night={weather?.isDay === false}>
         {weather ? (
           <>
-            <WeatherIcon kind={weather.kind} isDay={weather.isDay} />
-            <Text style={[styles.chipText, styles.weatherText, font]} numberOfLines={1}>
-              {weather.label}, {formatTemp(weather.temp)}
+            <WeatherIcon kind={weather.kind} isDay={weather.isDay} size={th.pixel ? 14 : 16} />
+            <Text style={[styles.chipText, styles.weatherText, fontOf(th, 8)]} numberOfLines={1}>
+              {/* в пиксельном шрифте нет длинного минуса — ставим обычный */}
+              {weather.label}, {th.pixel ? formatTemp(weather.temp).replace('−', '-') : formatTemp(weather.temp)}
             </Text>
           </>
         ) : (
-          <Text style={[styles.chipText, font]}>…</Text>
+          <Text style={[styles.chipText, fontOf(th, 8)]}>…</Text>
         )}
       </Chip>
     </Pressable>
@@ -73,7 +76,6 @@ export function CityClock({ name, timeZone, now, color, lat, lon, onLongPress }:
 // Третий слот: «Добавить город»
 export function AddCitySlot({ onPress }: { onPress: () => void }) {
   const th = useTheme();
-  const font = fontOf(th);
   return (
     <Pressable style={({ pressed }) => [styles.slot, pressed && { opacity: 0.6 }]} onPress={onPress}>
       <View style={styles.dial}>
@@ -83,9 +85,11 @@ export function AddCitySlot({ onPress }: { onPress: () => void }) {
           {th.pixel ? <PixelIcon name="plus" size={36} /> : <Text style={styles.plus}>+</Text>}
         </View>
       </View>
-      <Text style={[styles.city, font]}>Добавить</Text>
+      <Text style={[styles.city, fontOf(th, 10.7)]}>Добавить</Text>
       <Chip style={styles.addChip}>
-        <Text style={[styles.chipText, font]}>Новый город</Text>
+        <Text style={[styles.chipText, fontOf(th, 8)]} numberOfLines={1}>
+          Новый город
+        </Text>
       </Chip>
     </Pressable>
   );
@@ -107,6 +111,7 @@ const styles = StyleSheet.create({
     borderColor: theme.colors.cardBorder,
   },
   chipLayout: { marginTop: 8, paddingHorizontal: 10, paddingVertical: 6 },
+  chipLayoutPx: { paddingHorizontal: 7, paddingVertical: 7, maxWidth: '100%' },
   weatherChip: { flexDirection: 'row', alignItems: 'center', gap: 5, maxWidth: '100%' },
   weatherText: { flexShrink: 1 },
   // Мягкое размытое свечение изнутри почти на всю плашку: днём белое, ночью синее.
