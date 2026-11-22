@@ -70,6 +70,13 @@ export const MELODIES: Melody[] = [
   { id: 'tv_dont_miss_baby', name: 'Не пропусти, крошка', category: 'tv', voice: 'f', file: require('../assets/sounds/tv_dont_miss_baby.mp3') },
   { id: 'tv_gonna_be_hot', name: 'Будет жарко', category: 'tv', voice: 'f', file: require('../assets/sounds/tv_gonna_be_hot.mp3') },
   { id: 'tv_wanted_sequel', name: 'Хотела продолжения?', category: 'tv', voice: 'f', file: require('../assets/sounds/tv_wanted_sequel.mp3') },
+  { id: 'tv_series', name: 'Сериал', category: 'tv', voice: 'f', file: require('../assets/sounds/tv_series.mp3') },
+  { id: 'tv_get_comfy', name: 'Устраивайся поудобнее', category: 'tv', voice: 'f', file: require('../assets/sounds/tv_get_comfy.mp3') },
+  { id: 'tv_family_comedy', name: 'Семейный просмотр комедии', category: 'tv', voice: 'f', file: require('../assets/sounds/tv_family_comedy.mp3') },
+  { id: 'tv_talk_show', name: 'Ток-шоу', category: 'tv', voice: 'f', file: require('../assets/sounds/tv_talk_show.mp3') },
+  { id: 'tv_reality_show', name: 'Реалити-шоу', category: 'tv', voice: 'f', file: require('../assets/sounds/tv_reality_show.mp3') },
+  { id: 'tv_horror', name: 'Ужастик', category: 'tv', voice: 'f', file: require('../assets/sounds/tv_horror.mp3') },
+  { id: 'tv_thriller', name: 'Триллер', category: 'tv', voice: 'f', file: require('../assets/sounds/tv_thriller.mp3') },
   { id: 'tv_men_waiting', name: 'Тебя ждут несколько мужчин', category: 'tv', voice: 'f', file: require('../assets/sounds/tv_men_waiting.mp3') },
 ];
 
