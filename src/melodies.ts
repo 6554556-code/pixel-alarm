@@ -54,6 +54,7 @@ export const MELODIES: Melody[] = [
   { id: 'pixel', name: 'Pixel', category: 'chiptune', voice: 'any', file: require('../assets/sounds/chip_pixel.caf') },
 
   // Сон
+  { id: 'wakeup_coffee', name: 'Кофе', category: 'sleep', sub: 'wakeup', voice: 'f', file: require('../assets/sounds/sleep_wakeup_coffee.mp3') },
   { id: 'wakeup_little_rascal', name: 'Просыпайся, маленький паршивец', category: 'sleep', sub: 'wakeup', voice: 'm', file: require('../assets/sounds/sleep_wakeup_little_rascal.mp3') },
 
   // Еда
@@ -62,7 +63,14 @@ export const MELODIES: Melody[] = [
 
   // Дом
   { id: 'laundry_hang_wet_guys', name: 'Развесить мокрых парней', category: 'home', sub: 'laundry', voice: 'f', file: require('../assets/sounds/home_laundry_hang_wet_guys.mp3') },
+  { id: 'laundry_your_laundry', name: 'Твоя стирка', category: 'home', sub: 'laundry', voice: 'f', file: require('../assets/sounds/home_laundry_your_laundry.mp3') },
   { id: 'laundry_dirty_clean', name: 'Грязные ублюдки чисты', category: 'home', sub: 'laundry', voice: 'f', file: require('../assets/sounds/home_laundry_dirty_clean.mp3') },
+
+  // ТВ
+  { id: 'tv_dont_miss_baby', name: 'Не пропусти, крошка', category: 'tv', voice: 'f', file: require('../assets/sounds/tv_dont_miss_baby.mp3') },
+  { id: 'tv_gonna_be_hot', name: 'Будет жарко', category: 'tv', voice: 'f', file: require('../assets/sounds/tv_gonna_be_hot.mp3') },
+  { id: 'tv_wanted_sequel', name: 'Хотела продолжения?', category: 'tv', voice: 'f', file: require('../assets/sounds/tv_wanted_sequel.mp3') },
+  { id: 'tv_men_waiting', name: 'Тебя ждут несколько мужчин', category: 'tv', voice: 'f', file: require('../assets/sounds/tv_men_waiting.mp3') },
 ];
 
 // Подходит ли запись под переключатель М/Ж/Общие: общие видны везде
