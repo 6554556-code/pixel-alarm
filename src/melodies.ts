@@ -66,6 +66,20 @@ export const MELODIES: Melody[] = [
   { id: 'laundry_your_laundry', name: 'Твоя стирка', category: 'home', sub: 'laundry', voice: 'f', file: require('../assets/sounds/home_laundry_your_laundry.mp3') },
   { id: 'laundry_dirty_clean', name: 'Грязные ублюдки чисты', category: 'home', sub: 'laundry', voice: 'f', file: require('../assets/sounds/home_laundry_dirty_clean.mp3') },
 
+  // Ребёнок
+  { id: 'baby_club', name: 'Кружок', category: 'baby', voice: 'f', file: require('../assets/sounds/baby_club.mp3') },
+  { id: 'baby_vitamins', name: 'Витамины', category: 'baby', voice: 'f', file: require('../assets/sounds/baby_vitamins.mp3') },
+  { id: 'baby_pickup_kindergarten', name: 'Забрать из садика', category: 'baby', voice: 'f', file: require('../assets/sounds/baby_pickup_kindergarten.mp3') },
+  { id: 'baby_little_messy', name: 'Маленький грязнуля', category: 'baby', voice: 'f', file: require('../assets/sounds/baby_little_messy.mp3') },
+  { id: 'baby_to_bed', name: 'В постель', category: 'baby', voice: 'f', file: require('../assets/sounds/baby_to_bed.mp3') },
+  { id: 'baby_time_to_feed', name: 'Пора накормить', category: 'baby', voice: 'f', file: require('../assets/sounds/baby_time_to_feed.mp3') },
+  { id: 'baby_soup', name: 'Суп', category: 'baby', voice: 'f', file: require('../assets/sounds/baby_soup.mp3') },
+  { id: 'baby_puree', name: 'Пюре', category: 'baby', voice: 'f', file: require('../assets/sounds/baby_puree.mp3') },
+  { id: 'baby_nanny_or_kindergarten', name: 'Няня или садик', category: 'baby', voice: 'f', file: require('../assets/sounds/baby_nanny_or_kindergarten.mp3') },
+  { id: 'baby_kindergarten', name: 'Садик', category: 'baby', voice: 'f', file: require('../assets/sounds/baby_kindergarten.mp3') },
+  { id: 'baby_wake_up', name: 'Разбудить', category: 'baby', voice: 'f', file: require('../assets/sounds/baby_wake_up.mp3') },
+  { id: 'baby_wake_up_2', name: 'Разбудить 2', category: 'baby', voice: 'f', file: require('../assets/sounds/baby_wake_up_2.mp3') },
+
   // ТВ
   { id: 'tv_dont_miss_baby', name: 'Не пропусти, крошка', category: 'tv', voice: 'f', file: require('../assets/sounds/tv_dont_miss_baby.mp3') },
   { id: 'tv_gonna_be_hot', name: 'Будет жарко', category: 'tv', voice: 'f', file: require('../assets/sounds/tv_gonna_be_hot.mp3') },
