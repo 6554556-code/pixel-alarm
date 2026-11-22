@@ -9,17 +9,17 @@ import { Asset } from 'expo-asset';
 export const CATEGORIES = [
   { id: 'chiptune', name: 'Чиптюн', icon: require('../assets/categories/chiptune.png') },
   { id: 'sleep', name: 'Сон', icon: require('../assets/categories/sleep.png') },
-  { id: 'baby', name: 'Ребёнок', icon: require('../assets/categories/baby.png') },
-  { id: 'pets', name: 'Животные', icon: require('../assets/categories/pets.png') },
-  { id: 'meds', name: 'Лекарства', icon: require('../assets/categories/meds.png') },
-  { id: 'car', name: 'Машина', icon: require('../assets/categories/car.png') },
   { id: 'food', name: 'Еда', icon: require('../assets/categories/food.png') },
   { id: 'home', name: 'Дом', icon: require('../assets/categories/home.png') },
-  { id: 'sport', name: 'Спорт', icon: require('../assets/categories/sport.png') },
-  { id: 'study', name: 'Учёба', icon: require('../assets/categories/study.png') },
   { id: 'tv', name: 'ТВ', icon: require('../assets/categories/tv.png') },
+  { id: 'meds', name: 'Лекарства', icon: require('../assets/categories/meds.png') },
+  { id: 'sport', name: 'Спорт', icon: require('../assets/categories/sport.png') },
   { id: 'games', name: 'Игры', icon: require('../assets/categories/games.png') },
+  { id: 'study', name: 'Учёба', icon: require('../assets/categories/study.png') },
+  { id: 'car', name: 'Машина', icon: require('../assets/categories/car.png') },
   { id: 'travel', name: 'Путешествия', icon: require('../assets/categories/travel.png') },
+  { id: 'baby', name: 'Ребёнок', icon: require('../assets/categories/baby.png') },
+  { id: 'pets', name: 'Животные', icon: require('../assets/categories/pets.png') },
 ] as const;
 
 export type CategoryId = (typeof CATEGORIES)[number]['id'];
@@ -65,6 +65,14 @@ export const MELODIES: Melody[] = [
   { id: 'laundry_hang_wet_guys', name: 'Развесить мокрых парней', category: 'home', sub: 'laundry', voice: 'f', file: require('../assets/sounds/home_laundry_hang_wet_guys.mp3') },
   { id: 'laundry_your_laundry', name: 'Твоя стирка', category: 'home', sub: 'laundry', voice: 'f', file: require('../assets/sounds/home_laundry_your_laundry.mp3') },
   { id: 'laundry_dirty_clean', name: 'Грязные ублюдки чисты', category: 'home', sub: 'laundry', voice: 'f', file: require('../assets/sounds/home_laundry_dirty_clean.mp3') },
+  { id: 'home_trash_bag', name: 'Мусорный пакет', category: 'home', voice: 'f', file: require('../assets/sounds/home_trash_bag.mp3') },
+  { id: 'home_cleaning', name: 'Уборка', category: 'home', voice: 'f', file: require('../assets/sounds/home_cleaning.mp3') },
+  { id: 'home_dishwasher', name: 'Посудомойка', category: 'home', voice: 'f', file: require('../assets/sounds/home_dishwasher.mp3') },
+  { id: 'home_dishes', name: 'Посуда', category: 'home', voice: 'f', file: require('../assets/sounds/home_dishes.mp3') },
+  { id: 'home_laundry_washing_machine', name: 'Стиральная машина', category: 'home', sub: 'laundry', voice: 'f', file: require('../assets/sounds/home_laundry_washing_machine.mp3') },
+  { id: 'home_water_flowers', name: 'Полить цветы', category: 'home', voice: 'f', file: require('../assets/sounds/home_water_flowers.mp3') },
+  { id: 'home_too_dirty', name: 'Слишком грязно', category: 'home', voice: 'f', file: require('../assets/sounds/home_too_dirty.mp3') },
+  { id: 'home_vacuum', name: 'Пылесос', category: 'home', voice: 'f', file: require('../assets/sounds/home_vacuum.mp3') },
 
   // Ребёнок
   { id: 'baby_club', name: 'Кружок', category: 'baby', voice: 'f', file: require('../assets/sounds/baby_club.mp3') },
@@ -79,6 +87,7 @@ export const MELODIES: Melody[] = [
   { id: 'baby_kindergarten', name: 'Садик', category: 'baby', voice: 'f', file: require('../assets/sounds/baby_kindergarten.mp3') },
   { id: 'baby_wake_up', name: 'Разбудить', category: 'baby', voice: 'f', file: require('../assets/sounds/baby_wake_up.mp3') },
   { id: 'baby_wake_up_2', name: 'Разбудить 2', category: 'baby', voice: 'f', file: require('../assets/sounds/baby_wake_up_2.mp3') },
+  { id: 'baby_take_phone', name: 'Забери телефон', category: 'baby', voice: 'f', file: require('../assets/sounds/baby_take_phone.mp3') },
 
   // ТВ
   { id: 'tv_dont_miss_baby', name: 'Не пропусти, крошка', category: 'tv', voice: 'f', file: require('../assets/sounds/tv_dont_miss_baby.mp3') },
