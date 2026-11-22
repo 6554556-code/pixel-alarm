@@ -109,6 +109,16 @@ export const MELODIES: Melody[] = [
   { id: 'baby_wake_up_2', name: 'Разбудить 2', category: 'baby', voice: 'f', file: require('../assets/sounds/baby_wake_up_2.mp3') },
   { id: 'baby_take_phone', name: 'Забери телефон', category: 'baby', voice: 'f', file: require('../assets/sounds/baby_take_phone.mp3') },
 
+  // Лекарства
+  { id: 'meds_on_schedule', name: 'Лекарства по расписанию', category: 'meds', voice: 'f', file: require('../assets/sounds/meds_on_schedule.mp3') },
+  { id: 'meds_evening_ritual', name: 'Вечерний ритуал', category: 'meds', voice: 'f', file: require('../assets/sounds/meds_evening_ritual.mp3') },
+  { id: 'meds_magnesium', name: 'Магний', category: 'meds', voice: 'f', file: require('../assets/sounds/meds_magnesium.mp3') },
+  { id: 'meds_on_tongue', name: 'Положи на язык', category: 'meds', voice: 'f', file: require('../assets/sounds/meds_on_tongue.mp3') },
+  { id: 'meds_vitamin_party', name: 'Витаминная вечеринка', category: 'meds', voice: 'f', file: require('../assets/sounds/meds_vitamin_party.mp3') },
+  { id: 'meds_vitamin', name: 'Витамин', category: 'meds', voice: 'f', file: require('../assets/sounds/meds_vitamin.mp3') },
+  { id: 'meds_take_your_pill', name: 'Возьми свою таблеточку', category: 'meds', voice: 'f', file: require('../assets/sounds/meds_take_your_pill.mp3') },
+  { id: 'meds_swallow_baby', name: 'Глотай, детка', category: 'meds', voice: 'f', file: require('../assets/sounds/meds_swallow_baby.mp3') },
+
   // ТВ
   { id: 'tv_dont_miss_baby', name: 'Не пропусти, крошка', category: 'tv', voice: 'f', file: require('../assets/sounds/tv_dont_miss_baby.mp3') },
   { id: 'tv_gonna_be_hot', name: 'Будет жарко', category: 'tv', voice: 'f', file: require('../assets/sounds/tv_gonna_be_hot.mp3') },
