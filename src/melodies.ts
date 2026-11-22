@@ -73,6 +73,12 @@ export const MELODIES: Melody[] = [
   { id: 'home_water_flowers', name: 'Полить цветы', category: 'home', voice: 'f', file: require('../assets/sounds/home_water_flowers.mp3') },
   { id: 'home_too_dirty', name: 'Слишком грязно', category: 'home', voice: 'f', file: require('../assets/sounds/home_too_dirty.mp3') },
   { id: 'home_vacuum', name: 'Пылесос', category: 'home', voice: 'f', file: require('../assets/sounds/home_vacuum.mp3') },
+  { id: 'home_pay_bills', name: 'Оплата счетов', category: 'home', voice: 'f', file: require('../assets/sounds/home_pay_bills.mp3') },
+  { id: 'home_pay_internet', name: 'Оплата интернета', category: 'home', voice: 'f', file: require('../assets/sounds/home_pay_internet.mp3') },
+  { id: 'home_sort_wardrobe', name: 'Разбери шкаф', category: 'home', voice: 'f', file: require('../assets/sounds/home_sort_wardrobe.mp3') },
+  { id: 'home_laundry_ironing', name: 'Погладить бельё', category: 'home', sub: 'laundry', voice: 'f', file: require('../assets/sounds/home_laundry_ironing.mp3') },
+  { id: 'home_bed_linen', name: 'Постельное бельё', category: 'home', voice: 'f', file: require('../assets/sounds/home_bed_linen.mp3') },
+  { id: 'home_change_bedding', name: 'Сменить постельное', category: 'home', voice: 'f', file: require('../assets/sounds/home_change_bedding.mp3') },
 
   // Ребёнок
   { id: 'baby_club', name: 'Кружок', category: 'baby', voice: 'f', file: require('../assets/sounds/baby_club.mp3') },
