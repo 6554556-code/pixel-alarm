@@ -7,6 +7,7 @@ import { Asset } from 'expo-asset';
 // Разделы библиотеки звуков. Порядок здесь = порядок на экране.
 // Иконки — твои рисунки (assets/categories), белые на прозрачном → красятся в любой цвет темы.
 export const CATEGORIES = [
+  { id: 'chiptune', name: 'Чиптюн', icon: require('../assets/categories/chiptune.png') },
   { id: 'sleep', name: 'Сон', icon: require('../assets/categories/sleep.png') },
   { id: 'baby', name: 'Ребёнок', icon: require('../assets/categories/baby.png') },
   { id: 'pets', name: 'Животные', icon: require('../assets/categories/pets.png') },
@@ -36,8 +37,8 @@ export type Melody = {
 
 // Новая мелодия: файл в assets/sounds + строчка здесь (раздел — один из CATEGORIES)
 export const MELODIES: Melody[] = [
-  { id: 'sunrise', name: 'Sunrise', category: 'sleep', file: require('../assets/sounds/chip_sunrise.caf') },
-  { id: 'pixel', name: 'Pixel', category: 'games', file: require('../assets/sounds/chip_pixel.caf') },
+  { id: 'sunrise', name: 'Sunrise', category: 'chiptune', file: require('../assets/sounds/chip_sunrise.caf') },
+  { id: 'pixel', name: 'Pixel', category: 'chiptune', file: require('../assets/sounds/chip_pixel.caf') },
 ];
 
 // Мелодии раздела по алфавиту
