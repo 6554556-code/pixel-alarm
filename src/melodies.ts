@@ -28,22 +28,53 @@ export function getCategory(id: CategoryId) {
   return CATEGORIES.find((c) => c.id === id) ?? CATEGORIES[0];
 }
 
+// Подразделы. Пока нигде не показываем — заготовка, вдруг дорисуем иконки.
+export const SUBCATEGORIES: Partial<Record<CategoryId, { id: string; name: string }[]>> = {
+  sleep: [{ id: 'wakeup', name: 'Будильник' }],
+  food: [{ id: 'oven', name: 'Печка' }],
+  home: [{ id: 'laundry', name: 'Стирка' }],
+};
+
+// Кому адресована запись: м — мужчине, ж — женщине, any — общая (мелодии, звуки без обращения)
+export type Voice = 'm' | 'f' | 'any';
+
 export type Melody = {
   id: string;
   name: string;
   category: CategoryId;
+  sub?: string; // id подраздела из SUBCATEGORIES
+  voice: Voice;
   file: number; // результат require(...)
 };
 
-// Новая мелодия: файл в assets/sounds + строчка здесь (раздел — один из CATEGORIES)
+// Новая мелодия: файл в assets/sounds (до 30 сек) + строчка здесь
 export const MELODIES: Melody[] = [
-  { id: 'sunrise', name: 'Sunrise', category: 'chiptune', file: require('../assets/sounds/chip_sunrise.caf') },
-  { id: 'pixel', name: 'Pixel', category: 'chiptune', file: require('../assets/sounds/chip_pixel.caf') },
+  // Чиптюн
+  { id: 'sunrise', name: 'Sunrise', category: 'chiptune', voice: 'any', file: require('../assets/sounds/chip_sunrise.caf') },
+  { id: 'pixel', name: 'Pixel', category: 'chiptune', voice: 'any', file: require('../assets/sounds/chip_pixel.caf') },
+
+  // Сон
+  { id: 'wakeup_little_rascal', name: 'Просыпайся, маленький паршивец', category: 'sleep', sub: 'wakeup', voice: 'm', file: require('../assets/sounds/sleep_wakeup_little_rascal.mp3') },
+
+  // Еда
+  { id: 'oven_hot_thing_ready', name: 'Твоя горячая штучка готова', category: 'food', sub: 'oven', voice: 'f', file: require('../assets/sounds/food_oven_hot_thing_ready.mp3') },
+  { id: 'oven_damn_hot', name: 'Чертовски горячее', category: 'food', sub: 'oven', voice: 'f', file: require('../assets/sounds/food_oven_damn_hot.mp3') },
+
+  // Дом
+  { id: 'laundry_hang_wet_guys', name: 'Развесить мокрых парней', category: 'home', sub: 'laundry', voice: 'f', file: require('../assets/sounds/home_laundry_hang_wet_guys.mp3') },
+  { id: 'laundry_dirty_clean', name: 'Грязные ублюдки чисты', category: 'home', sub: 'laundry', voice: 'f', file: require('../assets/sounds/home_laundry_dirty_clean.mp3') },
 ];
 
-// Мелодии раздела по алфавиту
-export function melodiesIn(category: CategoryId) {
-  return MELODIES.filter((m) => m.category === category).sort((a, b) => a.name.localeCompare(b.name, 'ru'));
+// Подходит ли запись под переключатель М/Ж/Общие: общие видны везде
+export function fitsVoice(m: Melody, voice: Voice) {
+  return m.voice === 'any' || m.voice === voice;
+}
+
+// Мелодии раздела по алфавиту (с учётом переключателя М/Ж/Общие)
+export function melodiesIn(category: CategoryId, voice: Voice = 'any') {
+  return MELODIES.filter((m) => m.category === category && fitsVoice(m, voice)).sort((a, b) =>
+    a.name.localeCompare(b.name, 'ru'),
+  );
 }
 
 export const DEFAULT_MELODY = 'sunrise';

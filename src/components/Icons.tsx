@@ -44,3 +44,13 @@ export function RadioDot({ on, size = 22 }: { on: boolean; size?: number }) {
     </Svg>
   );
 }
+
+// Пианино: клавиатура с чёрными клавишами — вход в синтезатор чиптюнов
+export function PianoIcon({ size = 22, color = theme.colors.text, width = 1.8 }: IconProps) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24">
+      <Path d="M3.5 5h17v14h-17zM8 19v-5M12 19v-5M16 19v-5" fill="none" stroke={color} strokeWidth={width} strokeLinecap="round" strokeLinejoin="round" />
+      <Path d="M6.6 5h2.8v8.2a.8.8 0 0 1-.8.8H7.4a.8.8 0 0 1-.8-.8zM14.6 5h2.8v8.2a.8.8 0 0 1-.8.8h-1.2a.8.8 0 0 1-.8-.8z" fill={color} />
+    </Svg>
+  );
+}

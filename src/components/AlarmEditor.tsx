@@ -2,11 +2,13 @@
 // Внутри две «страницы»: основная и выбор мелодии.
 
 import { useEffect, useState } from 'react';
-import { Modal, Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
+import { Alert, Modal, Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
 import { setAudioModeAsync, useAudioPlayer, useAudioPlayerStatus } from 'expo-audio';
 import { theme } from '../theme';
 import { Alarm, Weekday, newAlarm } from '../alarms';
-import { CATEGORIES, CategoryId, getMelody, melodiesIn } from '../melodies';
+import { CATEGORIES, CategoryId, Voice, getMelody, melodiesIn } from '../melodies';
+import { SegmentedSwitch } from './SegmentedSwitch';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { CategoryIcon } from './CategoryIcon';
 import { formatDuration, nextRing } from '../time';
 import { WHEEL_ITEM_H, WHEEL_VISIBLE, WheelPicker } from './WheelPicker';
@@ -20,6 +22,7 @@ import {
   NoteIcon,
   PauseIcon,
   PencilIcon,
+  PianoIcon,
   PlayIcon,
   RadioDot,
 } from './Icons';
@@ -52,6 +55,19 @@ export function AlarmEditor({ visible, alarm, onSave, onDelete, onClose }: Props
   const [page, setPage] = useState<'main' | 'melody'>('main');
   // Фильтр на странице мелодий: null = все разделы
   const [filter, setFilter] = useState<CategoryId | null>(null);
+  // Переключатель М / Ж / Общие (общие видны всегда); последний выбор запоминаем
+  const [voice, setVoice] = useState<Voice>('any');
+  useEffect(() => {
+    AsyncStorage.getItem('melodyVoice:v1')
+      .then((v) => {
+        if (v === 'm' || v === 'f' || v === 'any') setVoice(v);
+      })
+      .catch(() => {});
+  }, []);
+  const changeVoice = (v: Voice) => {
+    setVoice(v);
+    AsyncStorage.setItem('melodyVoice:v1', v).catch(() => {});
+  };
   const [now, setNow] = useState(() => new Date());
   // Номер «сеанса» открытия: барабаны пересоздаются и встают на время нового черновика
   const [session, setSession] = useState(0);
@@ -180,6 +196,9 @@ export function AlarmEditor({ visible, alarm, onSave, onDelete, onClose }: Props
                   style={styles.row}
                   onPress={() => {
                     setFilter(null);
+                    // Если у будильника запись «мужская»/«женская» — открываем на ней
+                    const v = getMelody(draft.melody).voice;
+                    if (v !== 'any') setVoice(v);
                     setPage('melody');
                   }}
                 >
@@ -250,6 +269,22 @@ export function AlarmEditor({ visible, alarm, onSave, onDelete, onClose }: Props
               <View style={{ width: 48 }} />
             </View>
 
+            {/* М · Ж · Общие */}
+            <View style={styles.voiceBar}>
+              <SegmentedSwitch
+                options={[
+                  { value: 'm', label: 'М' },
+                  { value: 'f', label: 'Ж' },
+                  { value: 'any', label: 'Общие' },
+                ]}
+                value={voice}
+                onChange={(v) => {
+                  changeVoice(v);
+                  if (filter && filter !== 'chiptune' && melodiesIn(filter, v).length === 0) setFilter(null);
+                }}
+              />
+            </View>
+
             {/* Иконки разделов: тап — показать только этот раздел, повторный тап — снова все */}
             <ScrollView
               horizontal
@@ -259,7 +294,7 @@ export function AlarmEditor({ visible, alarm, onSave, onDelete, onClose }: Props
             >
               {CATEGORIES.map((c) => {
                 const active = filter === c.id;
-                const empty = melodiesIn(c.id).length === 0;
+                const empty = c.id !== 'chiptune' && melodiesIn(c.id, voice).length === 0;
                 return (
                   <Pressable
                     key={c.id}
@@ -276,8 +311,9 @@ export function AlarmEditor({ visible, alarm, onSave, onDelete, onClose }: Props
             {/* Разделы с мелодиями (пустые не показываем) */}
             <ScrollView contentContainerStyle={styles.content}>
               {CATEGORIES.filter((c) => !filter || c.id === filter).map((c) => {
-                const list = melodiesIn(c.id);
-                if (list.length === 0) return null;
+                const list = melodiesIn(c.id, voice);
+                const isChiptune = c.id === 'chiptune';
+                if (list.length === 0 && !isChiptune) return null;
                 return (
                   <View key={c.id} style={styles.section}>
                     <View style={styles.sectionHead}>
@@ -285,12 +321,23 @@ export function AlarmEditor({ visible, alarm, onSave, onDelete, onClose }: Props
                       <Text style={styles.sectionTitle}>{c.name}</Text>
                     </View>
                     <View style={styles.card}>
+                      {/* Первая строка Чиптюна — вход в синтезатор */}
+                      {isChiptune && (
+                        <Pressable
+                          style={styles.row}
+                          onPress={() => Alert.alert('Синтезатор', 'Скоро здесь можно будет сочинить свою мелодию 🎹')}
+                        >
+                          <PianoIcon color={theme.colors.accent} />
+                          <Text style={[styles.rowLabel, { color: theme.colors.accent, fontWeight: '600' }]}>Создать свою</Text>
+                          <ChevronRight size={18} color={theme.colors.textMuted} />
+                        </Pressable>
+                      )}
                       {list.map((m, i) => {
                         const selected = draft.melody === m.id;
                         const playing = previewing === m.id;
                         return (
                           <View key={m.id}>
-                            {i > 0 && <View style={styles.divider} />}
+                            {(i > 0 || isChiptune) && <View style={styles.divider} />}
                             <Pressable style={styles.row} onPress={() => set({ melody: m.id })}>
                               <RadioDot on={selected} />
                               <Text style={[styles.rowLabel, selected && { fontWeight: '600' }]}>{m.name}</Text>
@@ -387,7 +434,8 @@ const styles = StyleSheet.create({
   snoozeLabel: { fontSize: 15, color: theme.colors.textMuted },
   snoozeValue: { fontSize: 15, fontWeight: '600', color: theme.colors.accent, fontVariant: ['tabular-nums'] },
 
-  filterBar: { flexGrow: 0, marginTop: 8, marginBottom: 4 },
+  voiceBar: { paddingHorizontal: 16, marginTop: 8 },
+  filterBar: { flexGrow: 0, marginTop: 12, marginBottom: 4 },
   filterContent: { paddingHorizontal: 16, gap: 10 },
   filterBtn: {
     width: 52,
