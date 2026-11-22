@@ -1,7 +1,9 @@
 // Один слот с часами: циферблат, город, время, дата, погода.
 
-import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { theme } from '../theme';
+import { ReactNode } from 'react';
+import { Pressable, StyleProp, StyleSheet, Text, View, ViewStyle } from 'react-native';
+import { fontOf, theme, useTheme } from '../theme';
+import { PixelBox, PixelIcon } from './Pixel';
 import { ClockFace } from './ClockFace';
 import { WeatherIcon } from './WeatherIcon';
 import { formatDate, formatTime, getZonedTime } from '../time';
@@ -17,53 +19,74 @@ type Props = {
   onLongPress?: () => void; // долгое нажатие — меню города (удалить)
 };
 
+// Плашка: стеклянная таблетка в классике, «лесенка» в пиксельной теме
+function Chip({ children, style, night, day }: { children: ReactNode; style?: StyleProp<ViewStyle>; night?: boolean; day?: boolean }) {
+  const th = useTheme();
+  if (th.pixel) {
+    return (
+      <PixelBox
+        style={[styles.chipLayout, style]}
+        fill={night ? '#E4E6FF' : '#FFFFFF'}
+        stroke={th.colors.outline}
+        glow={night ? '#7B86F2' : undefined}
+      >
+        {children}
+      </PixelBox>
+    );
+  }
+  return <View style={[styles.chip, styles.chipLayout, style, day && styles.chipDay, night && styles.chipNight]}>{children}</View>;
+}
+
 export function CityClock({ name, timeZone, now, color, lat, lon, onLongPress }: Props) {
   const t = getZonedTime(now, timeZone);
   const weather = useWeather(lat, lon);
+  const font = fontOf(useTheme());
 
   return (
     <Pressable style={styles.slot} onLongPress={onLongPress} delayLongPress={400}>
       <View style={styles.dial}>
         <ClockFace color={color} hour={t.hour} minute={t.minute} second={t.second} />
       </View>
-      <Text style={styles.city} numberOfLines={1}>{name}</Text>
-      <Text style={styles.time}>{formatTime(t)}</Text>
+      <Text style={[styles.city, font]} numberOfLines={1}>{name}</Text>
+      <Text style={[styles.time, font]}>{formatTime(t)}</Text>
 
       <View style={styles.dateRow}>
-        <Text style={styles.date}>{formatDate(t)}</Text>
+        <Text style={[styles.date, font]}>{formatDate(t)}</Text>
       </View>
 
-      <View style={[styles.chip, styles.weatherChip, weather && (weather.isDay ? styles.chipDay : styles.chipNight)]}>
+      <Chip style={styles.weatherChip} day={weather?.isDay === true} night={weather?.isDay === false}>
         {weather ? (
           <>
             <WeatherIcon kind={weather.kind} isDay={weather.isDay} />
-            <Text style={[styles.chipText, styles.weatherText]} numberOfLines={1}>
+            <Text style={[styles.chipText, styles.weatherText, font]} numberOfLines={1}>
               {weather.label}, {formatTemp(weather.temp)}
             </Text>
           </>
         ) : (
-          <Text style={styles.chipText}>…</Text>
+          <Text style={[styles.chipText, font]}>…</Text>
         )}
-      </View>
+      </Chip>
     </Pressable>
   );
 }
 
 // Третий слот: «Добавить город»
 export function AddCitySlot({ onPress }: { onPress: () => void }) {
+  const th = useTheme();
+  const font = fontOf(th);
   return (
     <Pressable style={({ pressed }) => [styles.slot, pressed && { opacity: 0.6 }]} onPress={onPress}>
       <View style={styles.dial}>
         <ClockFace color={theme.colors.cardBorder} empty />
         {/* «Плюс» поверх пустого циферблата */}
         <View style={styles.plusLayer}>
-          <Text style={styles.plus}>+</Text>
+          {th.pixel ? <PixelIcon name="plus" size={36} /> : <Text style={styles.plus}>+</Text>}
         </View>
       </View>
-      <Text style={styles.city}>Добавить</Text>
-      <View style={[styles.chip, styles.addChip]}>
-        <Text style={styles.chipText}>Новый город</Text>
-      </View>
+      <Text style={[styles.city, font]}>Добавить</Text>
+      <Chip style={styles.addChip}>
+        <Text style={[styles.chipText, font]}>Новый город</Text>
+      </Chip>
     </Pressable>
   );
 }
@@ -78,14 +101,12 @@ const styles = StyleSheet.create({
   dateRow: { marginTop: 2 },
   date: { fontSize: 13, color: theme.colors.textMuted },
   chip: {
-    marginTop: 8,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
     borderRadius: theme.radius.pill,
     backgroundColor: theme.colors.card,
     borderWidth: 1,
     borderColor: theme.colors.cardBorder,
   },
+  chipLayout: { marginTop: 8, paddingHorizontal: 10, paddingVertical: 6 },
   weatherChip: { flexDirection: 'row', alignItems: 'center', gap: 5, maxWidth: '100%' },
   weatherText: { flexShrink: 1 },
   // Мягкое размытое свечение изнутри почти на всю плашку: днём белое, ночью синее.

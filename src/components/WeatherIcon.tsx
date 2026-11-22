@@ -3,6 +3,15 @@
 
 import Svg, { Circle, Line, Path } from 'react-native-svg';
 import type { WeatherKind } from '../weather';
+import { useTheme } from '../theme';
+import { PixelIcon, PixelIconName } from './Pixel';
+
+// В пиксельной теме — твои рисованные иконки
+function pixelName(kind: WeatherKind, isDay: boolean): PixelIconName {
+  if (kind === 'clear') return isDay ? 'sun' : 'moon';
+  if (kind === 'partly') return isDay ? 'partly_day' : 'partly_night';
+  return kind === 'cloudy' ? 'cloud' : kind;
+}
 
 // ===== Палитра иконок — подкручивать здесь =====
 export const ICON_COLORS = {
@@ -84,6 +93,8 @@ const Cloud = ({ d = CLOUD, filled = false }: { d?: string; filled?: boolean }) 
 );
 
 export function WeatherIcon({ kind, isDay = true, size = 16 }: { kind: WeatherKind; isDay?: boolean; size?: number }) {
+  const t = useTheme();
+  if (t.pixel) return <PixelIcon name={pixelName(kind, isDay)} size={size + 4} />;
   let content;
   switch (kind) {
     case 'clear':

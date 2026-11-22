@@ -1,9 +1,11 @@
 // Главный экран «Часы и будильники»
 
-import { useEffect, useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import { theme } from './src/theme';
+import { useFonts } from 'expo-font';
+import { fontOf, theme, useTheme } from './src/theme';
+import { PixelBox, PixelIcon } from './src/components/Pixel';
 import { AddCitySlot, CityClock } from './src/components/CityClock';
 import { AlarmCard } from './src/components/AlarmCard';
 import { CitySearchModal } from './src/components/CitySearchModal';
@@ -25,6 +27,8 @@ function useNow() {
 }
 
 export default function App() {
+  // Пиксельный шрифт (OFL, assets/fonts). Пока грузится — текст системным шрифтом.
+  useFonts({ Tiny5: require('./assets/fonts/Tiny5-Regular.ttf') });
   return (
     <SettingsProvider>
       <MainScreen />
@@ -32,7 +36,26 @@ export default function App() {
   );
 }
 
+// Круглая кнопка в шапке: стекло в классике, «лесенка» в пиксельной теме
+function HeaderButton({ onPress, children }: { onPress?: () => void; children: ReactNode }) {
+  const th = useTheme();
+  if (th.pixel) {
+    return (
+      <Pressable onPress={onPress} style={styles.headerBtnGap}>
+        <PixelBox style={styles.pixelBtn}>{children}</PixelBox>
+      </Pressable>
+    );
+  }
+  return (
+    <Pressable style={[styles.iconBtn, styles.headerBtnGap]} onPress={onPress}>
+      {children}
+    </Pressable>
+  );
+}
+
 function MainScreen() {
+  const th = useTheme();
+  const font = fontOf(th);
   const now = useNow();
   const [settingsOpen, setSettingsOpen] = useState(false);
   const { cities, addCity, removeCity } = useCities();
@@ -76,18 +99,18 @@ function MainScreen() {
   const emptySlots = Math.max(0, MAX_CITIES - cities.length);
 
   return (
-    <View style={styles.screen}>
+    <View style={[styles.screen, { backgroundColor: th.colors.background }]}>
       <StatusBar style="dark" />
       <ScrollView contentContainerStyle={styles.content}>
         {/* Шапка */}
         <View style={styles.header}>
-          <Text style={styles.title}>Часы и будильники</Text>
-          <Pressable style={styles.iconBtn} onPress={() => setSettingsOpen(true)}>
-            <Text style={styles.iconText}>⚙︎</Text>
-          </Pressable>
-          <Pressable style={styles.iconBtn}>
-            <Text style={styles.langText}>RU</Text>
-          </Pressable>
+          <Text style={[styles.title, font, th.pixel && { fontSize: 30 }]}>Часы и будильники</Text>
+          <HeaderButton onPress={() => setSettingsOpen(true)}>
+            {th.pixel ? <PixelIcon name="gear" size={26} /> : <Text style={styles.iconText}>⚙︎</Text>}
+          </HeaderButton>
+          <HeaderButton>
+            <Text style={[styles.langText, font]}>RU</Text>
+          </HeaderButton>
         </View>
 
         {/* Три слота с часами */}
@@ -147,11 +170,12 @@ const styles = StyleSheet.create({
   content: { paddingTop: 64, paddingHorizontal: 16, paddingBottom: 40 },
   header: { flexDirection: 'row', alignItems: 'center', marginBottom: 24 },
   title: { flex: 1, fontSize: 28, fontWeight: '700', color: theme.colors.text },
+  headerBtnGap: { marginLeft: 8 },
+  pixelBtn: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center' },
   iconBtn: {
     width: 48,
     height: 48,
     borderRadius: 24,
-    marginLeft: 8,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: theme.colors.card,

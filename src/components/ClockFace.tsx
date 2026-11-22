@@ -6,7 +6,8 @@
 
 import { StyleSheet, View } from 'react-native';
 import Svg, { Circle, Defs, Line, RadialGradient, Stop } from 'react-native-svg';
-import { theme } from '../theme';
+import { theme, useTheme } from '../theme';
+import { PixelClockFace } from './Pixel';
 
 type Props = {
   color: string; // цвет обводки, свечения и центра
@@ -14,6 +15,7 @@ type Props = {
   minute?: number;
   second?: number;
   empty?: boolean; // без стрелок — для слота «Добавить»
+  variant?: 'classic' | 'pixel'; // принудительно (для превью в настройках); по умолчанию — текущая тема
 };
 
 const C = 50; // центр
@@ -72,7 +74,13 @@ function Hand({ angle, length, width, color, glowColor }: HandProps) {
   );
 }
 
-export function ClockFace({ color, hour = 0, minute = 0, second = 0, empty = false }: Props) {
+export function ClockFace(props: Props) {
+  const t = useTheme();
+  const variant = props.variant ?? (t.pixel ? 'pixel' : 'classic');
+  return variant === 'pixel' ? <PixelClockFace {...props} /> : <GlassClockFace {...props} />;
+}
+
+function GlassClockFace({ color, hour = 0, minute = 0, second = 0, empty = false }: Props) {
   // Минутная ползёт плавно каждую секунду, часовая — каждую минуту
   const minuteAngle = (minute + second / 60) * 6;
   const hourAngle = ((hour % 12) + minute / 60) * 30;

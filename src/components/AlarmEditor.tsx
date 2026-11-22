@@ -8,7 +8,6 @@ import { theme } from '../theme';
 import { Alarm, Weekday, newAlarm } from '../alarms';
 import { CATEGORIES, CategoryId, Voice, getMelody, melodiesIn } from '../melodies';
 import { SegmentedSwitch } from './SegmentedSwitch';
-import { useSettings } from '../settings';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { CategoryIcon } from './CategoryIcon';
 import { formatDuration, nextRing } from '../time';
@@ -56,7 +55,6 @@ export function AlarmEditor({ visible, alarm, onSave, onDelete, onClose }: Props
   const [page, setPage] = useState<'main' | 'melody'>('main');
   // Фильтр на странице мелодий: null = все разделы
   const [filter, setFilter] = useState<CategoryId | null>(null);
-  const { adult } = useSettings(); // показывать ли записи 18+
   // Переключатель М / Ж / Общие (общие видны всегда); последний выбор запоминаем
   const [voice, setVoice] = useState<Voice>('any');
   useEffect(() => {
@@ -282,7 +280,7 @@ export function AlarmEditor({ visible, alarm, onSave, onDelete, onClose }: Props
                 value={voice}
                 onChange={(v) => {
                   changeVoice(v);
-                  if (filter && filter !== 'chiptune' && melodiesIn(filter, v, adult).length === 0) setFilter(null);
+                  if (filter && filter !== 'chiptune' && melodiesIn(filter, v).length === 0) setFilter(null);
                 }}
               />
             </View>
@@ -296,7 +294,7 @@ export function AlarmEditor({ visible, alarm, onSave, onDelete, onClose }: Props
             >
               {CATEGORIES.map((c) => {
                 const active = filter === c.id;
-                const empty = c.id !== 'chiptune' && melodiesIn(c.id, voice, adult).length === 0;
+                const empty = c.id !== 'chiptune' && melodiesIn(c.id, voice).length === 0;
                 return (
                   <Pressable
                     key={c.id}
@@ -313,7 +311,7 @@ export function AlarmEditor({ visible, alarm, onSave, onDelete, onClose }: Props
             {/* Разделы с мелодиями (пустые не показываем) */}
             <ScrollView contentContainerStyle={styles.content}>
               {CATEGORIES.filter((c) => !filter || c.id === filter).map((c) => {
-                const list = melodiesIn(c.id, voice, adult);
+                const list = melodiesIn(c.id, voice);
                 const isChiptune = c.id === 'chiptune';
                 if (list.length === 0 && !isChiptune) return null;
                 return (

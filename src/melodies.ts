@@ -44,7 +44,6 @@ export type Melody = {
   category: CategoryId;
   sub?: string; // id подраздела из SUBCATEGORIES
   voice: Voice;
-  adult?: boolean; // 18+ — видно только при включённом «18+» в настройках
   file: number; // результат require(...)
 };
 
@@ -59,7 +58,7 @@ export const MELODIES: Melody[] = [
   { id: 'wakeup_little_rascal', name: 'Просыпайся, маленький паршивец', category: 'sleep', sub: 'wakeup', voice: 'm', file: require('../assets/sounds/sleep_wakeup_little_rascal.mp3') },
 
   // Еда
-  { id: 'oven_hot_thing_ready', name: 'Твоя горячая штучка готова', category: 'food', sub: 'oven', voice: 'f', adult: true, file: require('../assets/sounds/food_oven_hot_thing_ready.mp3') },
+  { id: 'oven_hot_thing_ready', name: 'Твоя горячая штучка готова', category: 'food', sub: 'oven', voice: 'f', file: require('../assets/sounds/food_oven_hot_thing_ready.mp3') },
   { id: 'oven_damn_hot', name: 'Чертовски горячее', category: 'food', sub: 'oven', voice: 'f', file: require('../assets/sounds/food_oven_damn_hot.mp3') },
   { id: 'food_brew_tea', name: 'Завари чай', category: 'food', voice: 'f', file: require('../assets/sounds/food_brew_tea.mp3') },
   { id: 'food_earned_espresso', name: 'Ты заслужила эспрессо', category: 'food', voice: 'f', file: require('../assets/sounds/food_earned_espresso.mp3') },
@@ -69,7 +68,7 @@ export const MELODIES: Melody[] = [
   { id: 'food_oven_take_out_pie', name: 'Доставай пирог', category: 'food', sub: 'oven', voice: 'f', file: require('../assets/sounds/food_oven_take_out_pie.mp3') },
   { id: 'food_order_pizza', name: 'Закажи пиццу', category: 'food', voice: 'f', file: require('../assets/sounds/food_order_pizza.mp3') },
   { id: 'food_restaurant', name: 'Ресторан', category: 'food', voice: 'f', file: require('../assets/sounds/food_restaurant.mp3') },
-  { id: 'food_time_to_feast', name: 'Пора красиво пожрать', category: 'food', voice: 'f', adult: true, file: require('../assets/sounds/food_time_to_feast.mp3') },
+  { id: 'food_time_to_feast', name: 'Пора красиво пожрать', category: 'food', voice: 'f', file: require('../assets/sounds/food_time_to_feast.mp3') },
   { id: 'food_breakfast', name: 'Завтрак', category: 'food', voice: 'f', file: require('../assets/sounds/food_breakfast.mp3') },
   { id: 'food_turn_on_stove', name: 'Включай плиту', category: 'food', voice: 'f', file: require('../assets/sounds/food_turn_on_stove.mp3') },
   { id: 'food_dinner_waits', name: 'Ужин ждёт', category: 'food', voice: 'f', file: require('../assets/sounds/food_dinner_waits.mp3') },
@@ -77,9 +76,9 @@ export const MELODIES: Melody[] = [
   { id: 'food_no_lunch_yet', name: 'Ты же не обедала', category: 'food', voice: 'f', file: require('../assets/sounds/food_no_lunch_yet.mp3') },
 
   // Дом
-  { id: 'laundry_hang_wet_guys', name: 'Развесить мокрых парней', category: 'home', sub: 'laundry', voice: 'f', adult: true, file: require('../assets/sounds/home_laundry_hang_wet_guys.mp3') },
+  { id: 'laundry_hang_wet_guys', name: 'Развесить мокрых парней', category: 'home', sub: 'laundry', voice: 'f', file: require('../assets/sounds/home_laundry_hang_wet_guys.mp3') },
   { id: 'laundry_your_laundry', name: 'Твоя стирка', category: 'home', sub: 'laundry', voice: 'f', file: require('../assets/sounds/home_laundry_your_laundry.mp3') },
-  { id: 'laundry_dirty_clean', name: 'Грязные ублюдки чисты', category: 'home', sub: 'laundry', voice: 'f', adult: true, file: require('../assets/sounds/home_laundry_dirty_clean.mp3') },
+  { id: 'laundry_dirty_clean', name: 'Грязные ублюдки чисты', category: 'home', sub: 'laundry', voice: 'f', file: require('../assets/sounds/home_laundry_dirty_clean.mp3') },
   { id: 'home_trash_bag', name: 'Мусорный пакет', category: 'home', voice: 'f', file: require('../assets/sounds/home_trash_bag.mp3') },
   { id: 'home_cleaning', name: 'Уборка', category: 'home', voice: 'f', file: require('../assets/sounds/home_cleaning.mp3') },
   { id: 'home_dishwasher', name: 'Посудомойка', category: 'home', voice: 'f', file: require('../assets/sounds/home_dishwasher.mp3') },
@@ -114,16 +113,16 @@ export const MELODIES: Melody[] = [
   { id: 'meds_on_schedule', name: 'Лекарства по расписанию', category: 'meds', voice: 'f', file: require('../assets/sounds/meds_on_schedule.mp3') },
   { id: 'meds_evening_ritual', name: 'Вечерний ритуал', category: 'meds', voice: 'f', file: require('../assets/sounds/meds_evening_ritual.mp3') },
   { id: 'meds_magnesium', name: 'Магний', category: 'meds', voice: 'f', file: require('../assets/sounds/meds_magnesium.mp3') },
-  { id: 'meds_on_tongue', name: 'Положи на язык', category: 'meds', voice: 'f', adult: true, file: require('../assets/sounds/meds_on_tongue.mp3') },
+  { id: 'meds_on_tongue', name: 'Положи на язык', category: 'meds', voice: 'f', file: require('../assets/sounds/meds_on_tongue.mp3') },
   { id: 'meds_vitamin_party', name: 'Витаминная вечеринка', category: 'meds', voice: 'f', file: require('../assets/sounds/meds_vitamin_party.mp3') },
   { id: 'meds_vitamin', name: 'Витамин', category: 'meds', voice: 'f', file: require('../assets/sounds/meds_vitamin.mp3') },
   { id: 'meds_take_your_pill', name: 'Возьми свою таблеточку', category: 'meds', voice: 'f', file: require('../assets/sounds/meds_take_your_pill.mp3') },
-  { id: 'meds_swallow_baby', name: 'Глотай, детка', category: 'meds', voice: 'f', adult: true, file: require('../assets/sounds/meds_swallow_baby.mp3') },
+  { id: 'meds_swallow_baby', name: 'Глотай, детка', category: 'meds', voice: 'f', file: require('../assets/sounds/meds_swallow_baby.mp3') },
 
   // ТВ
   { id: 'tv_dont_miss_baby', name: 'Не пропусти, крошка', category: 'tv', voice: 'f', file: require('../assets/sounds/tv_dont_miss_baby.mp3') },
   { id: 'tv_gonna_be_hot', name: 'Будет жарко', category: 'tv', voice: 'f', file: require('../assets/sounds/tv_gonna_be_hot.mp3') },
-  { id: 'tv_wanted_sequel', name: 'Хотела продолжения?', category: 'tv', voice: 'f', adult: true, file: require('../assets/sounds/tv_wanted_sequel.mp3') },
+  { id: 'tv_wanted_sequel', name: 'Хотела продолжения?', category: 'tv', voice: 'f', file: require('../assets/sounds/tv_wanted_sequel.mp3') },
   { id: 'tv_series', name: 'Сериал', category: 'tv', voice: 'f', file: require('../assets/sounds/tv_series.mp3') },
   { id: 'tv_get_comfy', name: 'Устраивайся поудобнее', category: 'tv', voice: 'f', file: require('../assets/sounds/tv_get_comfy.mp3') },
   { id: 'tv_family_comedy', name: 'Семейный просмотр комедии', category: 'tv', voice: 'f', file: require('../assets/sounds/tv_family_comedy.mp3') },
@@ -131,7 +130,7 @@ export const MELODIES: Melody[] = [
   { id: 'tv_reality_show', name: 'Реалити-шоу', category: 'tv', voice: 'f', file: require('../assets/sounds/tv_reality_show.mp3') },
   { id: 'tv_horror', name: 'Ужастик', category: 'tv', voice: 'f', file: require('../assets/sounds/tv_horror.mp3') },
   { id: 'tv_thriller', name: 'Триллер', category: 'tv', voice: 'f', file: require('../assets/sounds/tv_thriller.mp3') },
-  { id: 'tv_men_waiting', name: 'Тебя ждут несколько мужчин', category: 'tv', voice: 'f', adult: true, file: require('../assets/sounds/tv_men_waiting.mp3') },
+  { id: 'tv_men_waiting', name: 'Тебя ждут несколько мужчин', category: 'tv', voice: 'f', file: require('../assets/sounds/tv_men_waiting.mp3') },
 ];
 
 // Подходит ли запись под переключатель М/Ж/Общие: общие видны везде
@@ -139,9 +138,9 @@ export function fitsVoice(m: Melody, voice: Voice) {
   return m.voice === 'any' || m.voice === voice;
 }
 
-// Мелодии раздела по алфавиту (с учётом переключателя М/Ж/Общие и настройки 18+)
-export function melodiesIn(category: CategoryId, voice: Voice = 'any', adult = false) {
-  return MELODIES.filter((m) => m.category === category && fitsVoice(m, voice) && (adult || !m.adult)).sort((a, b) =>
+// Мелодии раздела по алфавиту (с учётом переключателя М/Ж/Общие)
+export function melodiesIn(category: CategoryId, voice: Voice = 'any') {
+  return MELODIES.filter((m) => m.category === category && fitsVoice(m, voice)).sort((a, b) =>
     a.name.localeCompare(b.name, 'ru'),
   );
 }

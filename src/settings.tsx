@@ -1,4 +1,4 @@
-// Настройки приложения: тема и «18+». Доступны из любого экрана через useSettings().
+// Настройки приложения (пока только тема). Доступны из любого экрана через useSettings().
 // Всё сразу сохраняется в память телефона.
 
 import { createContext, ReactNode, useCallback, useContext, useEffect, useState } from 'react';
@@ -8,24 +8,22 @@ export type ThemeId = 'classic' | 'pixel' | 'glam';
 
 export const THEMES: { id: ThemeId; name: string; ready: boolean }[] = [
   { id: 'classic', name: 'Классика', ready: true },
-  { id: 'pixel', name: 'Пиксель', ready: false }, // делаем сейчас
+  { id: 'pixel', name: 'Пиксель', ready: true },
   { id: 'glam', name: 'Гламур', ready: false }, // позже
 ];
 
 type Settings = {
   themeId: ThemeId;
-  adult: boolean; // показывать записи 18+
 };
 
-const DEFAULTS: Settings = { themeId: 'classic', adult: false };
+const DEFAULTS: Settings = { themeId: 'classic' };
 const STORAGE_KEY = 'settings:v1';
 
 type Ctx = Settings & {
   setThemeId: (id: ThemeId) => void;
-  setAdult: (on: boolean) => void;
 };
 
-const SettingsContext = createContext<Ctx>({ ...DEFAULTS, setThemeId: () => {}, setAdult: () => {} });
+const SettingsContext = createContext<Ctx>({ ...DEFAULTS, setThemeId: () => {} });
 
 export function SettingsProvider({ children }: { children: ReactNode }) {
   const [settings, setSettings] = useState<Settings>(DEFAULTS);
@@ -49,7 +47,6 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   const value: Ctx = {
     ...settings,
     setThemeId: (themeId) => update({ themeId }),
-    setAdult: (adult) => update({ adult }),
   };
 
   return <SettingsContext.Provider value={value}>{children}</SettingsContext.Provider>;

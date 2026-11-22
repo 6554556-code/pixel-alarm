@@ -8,7 +8,8 @@
 import { useState } from 'react';
 import { LayoutAnimation, Pressable, StyleSheet, Switch, Text, View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
-import { theme } from '../theme';
+import { fontOf, theme, useTheme } from '../theme';
+import { PixelBox, PixelIcon, PixelSwitch } from './Pixel';
 import { Alarm, formatAlarmTime, formatRepeat } from '../alarms';
 import { getMelody } from '../melodies';
 import { formatCountdownShort, nextRing } from '../time';
@@ -44,6 +45,11 @@ export function AlarmCard({ alarms, onAdd, onEdit, onToggle, onDelete }: Props) 
   // null — обычный режим; Set — режим удаления, внутри id помеченных на удаление
   const [marked, setMarked] = useState<Set<string> | null>(null);
   const deleting = marked !== null;
+  const th = useTheme();
+  const px = th.pixel;
+  const font = fontOf(th);
+  // Каркас под тему: в пиксельной — рамки-«лесенки», в классике — стекло
+  const Card = px ? PixelBox : View;
 
   // «Удалить все» → помечаем всё
   const startDeleting = () => {
@@ -75,20 +81,34 @@ export function AlarmCard({ alarms, onAdd, onEdit, onToggle, onDelete }: Props) 
   };
 
   return (
-    <View style={styles.card}>
+    <Card style={[styles.cardLayout, !px && styles.card]}>
       <View style={styles.header}>
-        <Text style={styles.title}>Будильник</Text>
-        {!deleting && (
-          <Pressable style={styles.roundBtn} onPress={onAdd}>
-            <Text style={styles.roundBtnText}>+</Text>
-          </Pressable>
-        )}
+        <Text style={[styles.title, font]}>Будильник</Text>
+        {!deleting &&
+          (px ? (
+            <Pressable onPress={onAdd} hitSlop={6}>
+              <PixelBox style={styles.pxRoundBtn}>
+                <PixelIcon name="plus" size={24} />
+              </PixelBox>
+            </Pressable>
+          ) : (
+            <Pressable style={styles.roundBtn} onPress={onAdd}>
+              <Text style={styles.roundBtnText}>+</Text>
+            </Pressable>
+          ))}
         <View style={{ flex: 1 }} />
-        {alarms.length > 0 && (
-          <Pressable style={styles.pill} onPress={deleting ? cancelDeleting : startDeleting}>
-            <Text style={styles.pillText}>{deleting ? 'Отмена' : 'Удалить все'}</Text>
-          </Pressable>
-        )}
+        {alarms.length > 0 &&
+          (px ? (
+            <Pressable onPress={deleting ? cancelDeleting : startDeleting} hitSlop={6}>
+              <PixelBox style={styles.pillLayout}>
+                <Text style={[styles.pillText, font]}>{deleting ? 'Отмена' : 'Удалить все'}</Text>
+              </PixelBox>
+            </Pressable>
+          ) : (
+            <Pressable style={[styles.pill, styles.pillLayout]} onPress={deleting ? cancelDeleting : startDeleting}>
+              <Text style={styles.pillText}>{deleting ? 'Отмена' : 'Удалить все'}</Text>
+            </Pressable>
+          ))}
       </View>
 
       {alarms.map((a, i) => {
@@ -100,65 +120,79 @@ export function AlarmCard({ alarms, onAdd, onEdit, onToggle, onDelete }: Props) 
             onPress={() => (deleting ? toggleMark(a.id) : onEdit(a))}
             style={[
               styles.row,
-              highlighted && styles.rowActive,
+              highlighted && (px ? styles.rowActivePx : styles.rowActive),
               i > 0 && !highlighted && styles.rowDivider,
               deleting && !isMarked && styles.rowKept,
             ]}
           >
+            {/* Пиксельная подложка активного будильника */}
+            {highlighted && px && <PixelBox style={StyleSheet.absoluteFill} />}
             {/* Кружок выбора: красный = удалить, пустой = оставить */}
-            {deleting && <View style={[styles.mark, isMarked ? styles.markOn : styles.markOff]} />}
-            {highlighted && <View style={styles.activeBar} />}
+            {deleting && <View style={[styles.mark, isMarked ? styles.markOn : styles.markOff, px && styles.square]} />}
+            {highlighted && <View style={[styles.activeBar, px && styles.square]} />}
 
             <View style={{ flex: 1 }}>
-              <Text style={[styles.time, isMarked && styles.timeMarked]}>{formatAlarmTime(a)}</Text>
-              {!!a.note && <Text style={[styles.note, isMarked && styles.textMarked]}>{a.note}</Text>}
-              <Text style={styles.melody}>
+              <Text style={[styles.time, font, isMarked && styles.timeMarked]}>{formatAlarmTime(a)}</Text>
+              {!!a.note && <Text style={[styles.note, font, isMarked && styles.textMarked]}>{a.note}</Text>}
+              <Text style={[styles.melody, font]}>
                 {formatRepeat(a.weekdays)} · {getMelody(a.melody).name}
                 {a.enabled && ` · через ${formatCountdownShort(nextRing(a.hour, a.minute, a.weekdays).getTime() - Date.now())}`}
               </Text>
             </View>
 
-            {!deleting && (
-              <Switch
-                value={a.enabled}
-                onValueChange={() => onToggle(a.id)}
-                trackColor={{ false: theme.colors.switchOff, true: theme.colors.accent }}
-              />
-            )}
+            {!deleting &&
+              (px ? (
+                <PixelSwitch value={a.enabled} onValueChange={() => onToggle(a.id)} />
+              ) : (
+                <Switch
+                  value={a.enabled}
+                  onValueChange={() => onToggle(a.id)}
+                  trackColor={{ false: theme.colors.switchOff, true: theme.colors.accent }}
+                />
+              ))}
           </Pressable>
         );
       })}
 
       {/* Кнопка подтверждения — только в режиме удаления */}
-      {deleting && (
-        <Pressable
-          disabled={marked.size === 0}
-          onPress={confirmDelete}
-          style={({ pressed }) => [
-            styles.deleteBtn,
-            marked.size === 0 && styles.deleteBtnDisabled,
-            pressed && { opacity: 0.7, transform: [{ scale: 0.98 }] },
-          ]}
-        >
-          <TrashIcon color={theme.colors.danger} size={18} />
-          <Text style={styles.deleteBtnText}>
-            {marked.size === 0 ? 'Ничего не выбрано' : `Удалить (${marked.size})`}
-          </Text>
-        </Pressable>
-      )}
-    </View>
+      {deleting &&
+        (px ? (
+          <Pressable disabled={marked.size === 0} onPress={confirmDelete} style={marked.size === 0 && styles.deleteBtnDisabled}>
+            <PixelBox style={styles.deleteBtnLayout} fill="#FDE3E4" stroke={theme.colors.danger}>
+              <Text style={[styles.deleteBtnText, font]}>
+                {marked.size === 0 ? 'Ничего не выбрано' : `Удалить (${marked.size})`}
+              </Text>
+            </PixelBox>
+          </Pressable>
+        ) : (
+          <Pressable
+            disabled={marked.size === 0}
+            onPress={confirmDelete}
+            style={({ pressed }) => [
+              styles.deleteBtn,
+              styles.deleteBtnLayout,
+              marked.size === 0 && styles.deleteBtnDisabled,
+              pressed && { opacity: 0.7, transform: [{ scale: 0.98 }] },
+            ]}
+          >
+            <TrashIcon color={theme.colors.danger} size={18} />
+            <Text style={styles.deleteBtnText}>
+              {marked.size === 0 ? 'Ничего не выбрано' : `Удалить (${marked.size})`}
+            </Text>
+          </Pressable>
+        ))}
+    </Card>
   );
 }
 
 const styles = StyleSheet.create({
   card: {
-    marginTop: 28,
-    padding: 16,
     borderRadius: theme.radius.card,
     backgroundColor: theme.colors.card,
     borderWidth: 1,
     borderColor: theme.colors.cardBorder,
   },
+  cardLayout: { marginTop: 28, padding: 16 },
   header: { flexDirection: 'row', alignItems: 'center', marginBottom: 12, paddingHorizontal: 4 },
   title: { fontSize: 26, fontWeight: '700', color: theme.colors.text, marginRight: 14 },
   roundBtn: {
@@ -173,13 +207,13 @@ const styles = StyleSheet.create({
   },
   roundBtnText: { fontSize: 28, fontWeight: '300', color: theme.colors.text, marginTop: -2 },
   pill: {
-    paddingHorizontal: 16,
-    paddingVertical: 10,
     borderRadius: theme.radius.pill,
     backgroundColor: theme.colors.card,
     borderWidth: 1,
     borderColor: theme.colors.cardBorder,
   },
+  pillLayout: { paddingHorizontal: 16, paddingVertical: 10 },
+  pxRoundBtn: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
   pillText: { fontSize: 15, color: theme.colors.text },
   row: { flexDirection: 'row', alignItems: 'center', paddingVertical: 14, paddingHorizontal: 12 },
   rowActive: {
@@ -188,6 +222,8 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   rowDivider: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: 'rgba(0,0,0,0.12)' },
+  rowActivePx: { marginBottom: 4 },
+  square: { borderRadius: 0 },
   rowKept: { opacity: 0.55 }, // «спасённый» будильник чуть бледнее — он не участвует в удалении
   activeBar: {
     width: 4,
@@ -220,17 +256,19 @@ const styles = StyleSheet.create({
   melody: { fontSize: 14, color: theme.colors.textMuted },
   // Кнопка «Удалить (N)» — как красная кнопка в окне подтверждения
   deleteBtn: {
-    marginTop: 14,
-    height: 52,
     borderRadius: theme.radius.pill,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
     backgroundColor: 'rgba(229,87,91,0.08)',
     borderWidth: 1,
     borderColor: 'rgba(229,87,91,0.35)',
     boxShadow: 'inset 0 0 16px 3px rgba(229,87,91,0.30)',
+  },
+  deleteBtnLayout: {
+    marginTop: 14,
+    height: 52,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
   },
   deleteBtnDisabled: { opacity: 0.45 },
   deleteBtnText: { fontSize: 17, fontWeight: '600', color: theme.colors.danger },

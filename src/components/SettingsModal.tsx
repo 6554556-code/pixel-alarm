@@ -1,19 +1,24 @@
-// Экран настроек (за шестерёнкой): темы и 18+.
+// Экран настроек (за шестерёнкой): выбор темы.
 
-import { Modal, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
+import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { theme } from '../theme';
 import { THEMES, ThemeId, useSettings } from '../settings';
 import { ClockFace } from './ClockFace';
 import { CloseIcon } from './Icons';
+import { PixelClockFace } from './Pixel';
 
 type Props = { visible: boolean; onClose: () => void };
 
-// Мини-превью темы: циферблат в её стиле (пока у готовых тем)
+// Мини-превью темы: циферблат в её стиле
 function ThemePreview({ id }: { id: ThemeId }) {
-  if (id === 'classic') {
+  if (id === 'classic' || id === 'pixel') {
     return (
       <View style={styles.previewDial}>
-        <ClockFace color={theme.colors.accent} hour={10} minute={10} />
+        {id === 'classic' ? (
+          <ClockFace color={theme.colors.accent} hour={10} minute={10} variant="classic" />
+        ) : (
+          <PixelClockFace color={theme.colors.accent} hour={10} minute={10} />
+        )}
       </View>
     );
   }
@@ -25,7 +30,7 @@ function ThemePreview({ id }: { id: ThemeId }) {
 }
 
 export function SettingsModal({ visible, onClose }: Props) {
-  const { themeId, setThemeId, adult, setAdult } = useSettings();
+  const { themeId, setThemeId } = useSettings();
 
   return (
     <Modal visible={visible} animationType="slide" presentationStyle="pageSheet" onRequestClose={onClose}>
@@ -54,21 +59,6 @@ export function SettingsModal({ visible, onClose }: Props) {
                 </Pressable>
               );
             })}
-          </View>
-
-          <Text style={styles.sectionTitle}>Озвучка</Text>
-          <View style={styles.card}>
-            <View style={styles.row}>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.rowLabel}>18+</Text>
-                <Text style={styles.rowHint}>Показывать записи для взрослых</Text>
-              </View>
-              <Switch
-                value={adult}
-                onValueChange={setAdult}
-                trackColor={{ false: theme.colors.switchOff, true: theme.colors.accent }}
-              />
-            </View>
           </View>
 
           <Text style={styles.credit}>Погода: Open-Meteo.com</Text>
@@ -126,10 +116,6 @@ const styles = StyleSheet.create({
   themeName: { fontSize: 15, color: theme.colors.text },
   themeNameOn: { fontWeight: '700', color: theme.colors.accent },
 
-  card: { borderRadius: theme.radius.card, paddingHorizontal: 16, ...glass },
-  row: { flexDirection: 'row', alignItems: 'center', minHeight: 64, paddingVertical: 10 },
-  rowLabel: { fontSize: 17, fontWeight: '600', color: theme.colors.text },
-  rowHint: { fontSize: 13, color: theme.colors.textMuted, marginTop: 2 },
 
   credit: { textAlign: 'center', fontSize: 12, color: theme.colors.textMuted, marginTop: 32 },
 });
