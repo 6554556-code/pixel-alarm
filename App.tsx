@@ -11,6 +11,8 @@ import { ConfirmDialog } from './src/components/ConfirmDialog';
 import { CITY_COLORS, City, MAX_CITIES, useCities } from './src/cities';
 import { Alarm, useAlarms } from './src/alarms';
 import { AlarmEditor } from './src/components/AlarmEditor';
+import { SettingsModal } from './src/components/SettingsModal';
+import { SettingsProvider } from './src/settings';
 
 // Текущее время, обновляется раз в секунду
 function useNow() {
@@ -23,7 +25,16 @@ function useNow() {
 }
 
 export default function App() {
+  return (
+    <SettingsProvider>
+      <MainScreen />
+    </SettingsProvider>
+  );
+}
+
+function MainScreen() {
   const now = useNow();
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const { cities, addCity, removeCity } = useCities();
   const [searchOpen, setSearchOpen] = useState(false);
   const [cityToRemove, setCityToRemove] = useState<City | null>(null);
@@ -71,7 +82,7 @@ export default function App() {
         {/* Шапка */}
         <View style={styles.header}>
           <Text style={styles.title}>Часы и будильники</Text>
-          <Pressable style={styles.iconBtn}>
+          <Pressable style={styles.iconBtn} onPress={() => setSettingsOpen(true)}>
             <Text style={styles.iconText}>⚙︎</Text>
           </Pressable>
           <Pressable style={styles.iconBtn}>
@@ -109,6 +120,8 @@ export default function App() {
       </ScrollView>
 
       <CitySearchModal visible={searchOpen} onClose={() => setSearchOpen(false)} onPick={pickCity} />
+
+      <SettingsModal visible={settingsOpen} onClose={() => setSettingsOpen(false)} />
 
       <AlarmEditor
         visible={editorOpen}
