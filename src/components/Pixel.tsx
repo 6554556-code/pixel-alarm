@@ -155,7 +155,7 @@ export function PixelClockFace({
     <View style={styles.dial} onLayout={(e) => setWidth(e.nativeEvent.layout.width)}>
       {/* Неоновое кольцо: обычное, гладкое, со свечением */}
       <View style={[styles.neon, { borderColor: dial.neon, shadowColor: dial.neon }]} />
-      <Image source={dial.image} style={StyleSheet.absoluteFill} resizeMode="contain" />
+      <Image source={dial.image} style={styles.fillImage} resizeMode="contain" />
       {!empty && cell > 0 && (
         <View style={{ position: 'absolute', left: offset, top: offset, width: size, height: size }}>
           <Layer runs={hands.hour} cell={cell} color="#111018" />
@@ -171,7 +171,7 @@ export function PixelAddDial({ size = 44 }: { size?: number }) {
   return (
     <View style={{ width: size, height: size }}>
       <View style={[styles.neon, { borderColor: DIALS.add.neon, shadowColor: DIALS.add.neon, borderWidth: 1.5 }]} />
-      <Image source={DIALS.add.image} style={StyleSheet.absoluteFill} resizeMode="contain" />
+      <Image source={DIALS.add.image} style={styles.fillImage} resizeMode="contain" />
     </View>
   );
 }
@@ -182,6 +182,8 @@ const styles = StyleSheet.create({
   knobOn: { left: 56 - 5 - 20 },
   knobOff: { left: 5 },
   dial: { width: '100%', aspectRatio: 1 },
+  // Размер картинки задаём явно: иначе она рисуется в свою натуральную величину
+  fillImage: { position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' },
   neon: {
     position: 'absolute',
     top: -3,
