@@ -3,7 +3,8 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { Animated, Pressable, StyleSheet, Text, TextStyle, View } from 'react-native';
-import { theme } from '../theme';
+import { theme, useTheme } from '../theme';
+import { GlamBubble } from './Glam';
 
 type Option<T extends string> = { value: T; label: string };
 
@@ -21,6 +22,7 @@ export function SegmentedSwitch<T extends string>({ options, value, onChange, te
   const segW = width > 0 ? (width - PAD * 2) / options.length : 0;
   const index = Math.max(0, options.findIndex((o) => o.value === value));
   const x = useRef(new Animated.Value(0)).current;
+  const glam = useTheme().glam;
 
   useEffect(() => {
     Animated.spring(x, { toValue: index * segW, useNativeDriver: true, speed: 20, bounciness: 6 }).start();
@@ -28,7 +30,12 @@ export function SegmentedSwitch<T extends string>({ options, value, onChange, te
 
   return (
     <View style={styles.wrap} onLayout={(e) => setWidth(e.nativeEvent.layout.width)}>
-      {segW > 0 && <Animated.View style={[styles.thumb, { width: segW, transform: [{ translateX: x }] }]} />}
+      {segW > 0 && (
+        <Animated.View style={[glam ? styles.thumbGlam : styles.thumb, { width: segW, transform: [{ translateX: x }] }]}>
+          {/* гламур: бегунок — фиолетовая стеклянная таблетка */}
+          {glam && <GlamBubble style={StyleSheet.absoluteFill} tint="accent" />}
+        </Animated.View>
+      )}
       {options.map((o) => {
         const on = o.value === value;
         return (
@@ -60,6 +67,7 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.accent,
     boxShadow: '0 3px 12px rgba(139,108,240,0.45)',
   },
+  thumbGlam: { position: 'absolute', top: PAD - 2, bottom: PAD - 2, left: PAD },
   seg: { flex: 1, height: 36, alignItems: 'center', justifyContent: 'center' },
   label: { fontSize: 15, fontWeight: '500', color: theme.colors.text },
   labelOn: { color: '#FFFFFF', fontWeight: '600' },
