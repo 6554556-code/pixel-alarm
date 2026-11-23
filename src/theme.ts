@@ -56,7 +56,7 @@ const glam: Theme = {
   id: 'glam',
   glam: true,
   colors: { ...classic.colors, background: '#E6E2F8' },
-  font: 'Forum',
+  font: undefined,
 };
 
 export const theme: Theme = classic;

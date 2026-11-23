@@ -34,7 +34,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
 const clampIndex = (i: number, n: number) => Math.min(n - 1, Math.max(0, i));
 
 export function WheelPicker({ values, value, onChange, format = pad, align = 'center', pixel = false }: Props) {
-  const font = fontOf(useTheme()); // гламур — Forum; классика — системный
+  const font = fontOf(useTheme()); // системный шрифт в классике и гламуре
   const startIndex = Math.max(0, values.indexOf(value));
   const scrollY = useRef(new Animated.Value(startIndex * WHEEL_ITEM_H)).current;
   const scrollRef = useRef<any>(null);

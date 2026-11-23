@@ -229,7 +229,6 @@ const bar = StyleSheet.create({
     alignSelf: 'stretch',
     marginRight: 12,
     borderRadius: 4,
-    boxShadow: '0 0 10px rgba(139,108,240,0.75), 0 2px 4px rgba(90,47,208,0.35)',
   },
   fill: { ...StyleSheet.absoluteFill, borderRadius: 4 },
   shine: { position: 'absolute', left: 1.5, top: 3, bottom: 6, width: 2, borderRadius: 1 },
