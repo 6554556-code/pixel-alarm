@@ -66,6 +66,12 @@ export const MELODIES: Melody[] = [
   { id: 'wakeup_stop_lazing', name: 'Хватит валяться', category: 'sleep', sub: 'wakeup', voice: 'f', file: require('../assets/sounds/sleep_wakeup_stop_lazing.mp3') },
   { id: 'sleep_surrender_mattress', name: 'Отдаться матрасу', category: 'sleep', voice: 'f', file: require('../assets/sounds/sleep_surrender_mattress.mp3') },
   { id: 'sleep_time_for_bed', name: 'Пора в постель', category: 'sleep', voice: 'f', file: require('../assets/sounds/sleep_time_for_bed.mp3') },
+  { id: 'sport_walk', name: 'Прогулка', category: 'sport', voice: 'f', file: require('../assets/sounds/sport_walk.mp3') },
+  { id: 'sport_your_machine', name: 'Твой тренажёр', category: 'sport', voice: 'f', file: require('../assets/sounds/sport_your_machine.mp3') },
+  { id: 'sport_dumbbells', name: 'Гантели', category: 'sport', voice: 'f', file: require('../assets/sounds/sport_dumbbells.mp3') },
+  { id: 'sport_yoga', name: 'Йога', category: 'sport', voice: 'f', file: require('../assets/sounds/sport_yoga.mp3') },
+  { id: 'sport_treadmill_20', name: '20 минут на дорожке', category: 'sport', voice: 'f', file: require('../assets/sounds/sport_treadmill_20.mp3') },
+  { id: 'sport_get_sweaty', name: 'Ты будешь мокрой', category: 'sport', voice: 'f', file: require('../assets/sounds/sport_get_sweaty.mp3') },
 
   // Еда
   { id: 'oven_hot_thing_ready', name: 'Твоя горячая штучка готова', category: 'food', sub: 'oven', voice: 'f', file: require('../assets/sounds/food_oven_hot_thing_ready.mp3') },
