@@ -191,7 +191,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: theme.colors.cardBorder,
   },
-  cardLayout: { marginTop: 28, padding: 16 },
+  cardLayout: { marginTop: 0, padding: 16 },
   header: { flexDirection: 'row', alignItems: 'center', marginBottom: 12, paddingHorizontal: 4 },
   title: { fontSize: 26, fontWeight: '700', color: theme.colors.text, marginRight: 14 },
   roundBtn: {

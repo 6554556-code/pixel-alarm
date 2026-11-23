@@ -102,7 +102,8 @@ function MainScreen() {
       {/* Гламур: перламутровый фон с радужными бликами */}
       {th.glam && <Image source={require('./assets/glam/background.jpg')} style={styles.bgImage} resizeMode="cover" />}
       <StatusBar style="dark" />
-      <ScrollView contentContainerStyle={styles.content}>
+      {/* Верх закреплён: шапка, часы и погода не уезжают */}
+      <View style={styles.top}>
         {/* Шапка */}
         <View style={styles.header}>
           {/* В пиксельной теме заголовок по центру между левым краем и шестерёнкой */}
@@ -136,7 +137,10 @@ function MainScreen() {
             <AddCitySlot key={`add-${i}`} onPress={() => setSearchOpen(true)} />
           ))}
         </View>
+      </View>
 
+      {/* Листается только карточка будильников */}
+      <ScrollView style={styles.alarmsScroll} contentContainerStyle={styles.alarmsContent}>
         <AlarmCard
           alarms={alarms}
           onAdd={openNewAlarm}
@@ -172,7 +176,10 @@ function MainScreen() {
 const styles = StyleSheet.create({
   bgImage: { position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' },
   screen: { flex: 1, backgroundColor: theme.colors.background },
-  content: { paddingTop: 64, paddingHorizontal: 16, paddingBottom: 40 },
+  top: { paddingTop: 64, paddingHorizontal: 16, paddingBottom: 18 },
+  alarmsScroll: { flex: 1 },
+  // отступ сверху даёт свечению/тени карточки место и не обрезает её край
+  alarmsContent: { paddingHorizontal: 16, paddingTop: 8, paddingBottom: 40 },
   header: { flexDirection: 'row', alignItems: 'center', marginBottom: 24 },
   title: { flex: 1, fontSize: 28, fontWeight: '700', color: theme.colors.text },
   headerBtnGap: { marginLeft: 8 },

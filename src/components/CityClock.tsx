@@ -84,8 +84,8 @@ export function AddCitySlot({ onPress }: { onPress: () => void }) {
         <ClockFace color={theme.colors.cardBorder} empty />
         {/* «Плюс» поверх пустого циферблата */}
         <View style={styles.plusLayer}>
-          {/* в пиксельной теме плюс уже нарисован на циферблате */}
-          {!th.pixel && <Text style={styles.plus}>+</Text>}
+          {/* в пиксельной и гламурной темах плюс уже на циферблате */}
+          {!th.pixel && !th.glam && <Text style={styles.plus}>+</Text>}
         </View>
       </View>
       <Text style={[styles.city, fontOf(th, 10.7)]}>Добавить</Text>
