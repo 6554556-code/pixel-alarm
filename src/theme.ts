@@ -56,6 +56,7 @@ const glam: Theme = {
   id: 'glam',
   glam: true,
   colors: { ...classic.colors, background: '#E6E2F8' },
+  font: 'Forum',
 };
 
 export const theme: Theme = classic;
@@ -77,7 +78,8 @@ export function crispSize(size: number) {
 // Жирность у пиксельного шрифта не нужна — она его портит.
 export function fontOf(t: Theme, pixelSize?: number): TextStyle {
   if (!t.font) return {};
-  if (!pixelSize) return { fontFamily: t.font, fontWeight: 'normal' };
+  // размеры «под пиксель» нужны только пиксельной теме; гламур просто меняет шрифт
+  if (!t.pixel || !pixelSize) return { fontFamily: t.font, fontWeight: 'normal' };
   const fontSize = crispSize(pixelSize);
   return { fontFamily: t.font, fontWeight: 'normal', fontSize, lineHeight: Math.round(fontSize * 1.5) };
 }

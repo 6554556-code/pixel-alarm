@@ -114,12 +114,12 @@ export function AlarmCard({ alarms, onAdd, onEdit, onToggle, onDelete }: Props) 
             th.glam ? (
               <Pressable onPress={deleting ? cancelDeleting : startDeleting}>
                 <GlamBubble style={styles.pillLayout}>
-                  <Text style={styles.pillText}>{deleting ? 'Отмена' : 'Удалить все'}</Text>
+                  <Text style={[styles.pillText, fontOf(th)]}>{deleting ? 'Отмена' : 'Удалить все'}</Text>
                 </GlamBubble>
               </Pressable>
             ) : (
               <Pressable style={[styles.pill, styles.pillLayout]} onPress={deleting ? cancelDeleting : startDeleting}>
-                <Text style={styles.pillText}>{deleting ? 'Отмена' : 'Удалить все'}</Text>
+                <Text style={[styles.pillText, fontOf(th)]}>{deleting ? 'Отмена' : 'Удалить все'}</Text>
               </Pressable>
             )
           ))}
@@ -185,7 +185,7 @@ export function AlarmCard({ alarms, onAdd, onEdit, onToggle, onDelete }: Props) 
             <GlamBubble style={styles.deleteBtnLayout} tint="danger">
               <View style={styles.glamRow}>
                 <TrashIcon color={theme.colors.danger} size={18} />
-                <Text style={styles.deleteBtnText}>
+                <Text style={[styles.deleteBtnText, fontOf(th)]}>
                   {marked.size === 0 ? 'Ничего не выбрано' : `Удалить (${marked.size})`}
                 </Text>
               </View>
@@ -203,7 +203,7 @@ export function AlarmCard({ alarms, onAdd, onEdit, onToggle, onDelete }: Props) 
             ]}
           >
             <TrashIcon color={theme.colors.danger} size={18} />
-            <Text style={styles.deleteBtnText}>
+            <Text style={[styles.deleteBtnText, fontOf(th)]}>
               {marked.size === 0 ? 'Ничего не выбрано' : `Удалить (${marked.size})`}
             </Text>
           </Pressable>

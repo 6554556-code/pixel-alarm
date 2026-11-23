@@ -86,12 +86,12 @@ export function ConfirmDialog({
                 <>
                   <Pressable style={styles.pxBtnWrap} onPress={onCancel}>
                     <GlamBubble style={styles.glamBtn}>
-                      <Text style={styles.cancelText}>{cancelText}</Text>
+                      <Text style={[styles.cancelText, f(10.7)]}>{cancelText}</Text>
                     </GlamBubble>
                   </Pressable>
                   <Pressable style={styles.pxBtnWrap} onPress={onConfirm}>
                     <GlamBubble style={styles.glamBtn} tint={destructive ? 'danger' : 'pearl'}>
-                      <Text style={[styles.confirmText, { color: destructive ? theme.colors.danger : theme.colors.accent }]}>
+                      <Text style={[styles.confirmText, f(10.7), { color: destructive ? theme.colors.danger : theme.colors.accent }]}>
                         {confirmText}
                       </Text>
                     </GlamBubble>
@@ -100,13 +100,13 @@ export function ConfirmDialog({
               ) : (
                 <>
                   <Pressable style={({ pressed }) => [styles.btn, styles.cancel, pressed && styles.pressed]} onPress={onCancel}>
-                    <Text style={styles.cancelText}>{cancelText}</Text>
+                    <Text style={[styles.cancelText, f(10.7)]}>{cancelText}</Text>
                   </Pressable>
                   <Pressable
                     style={({ pressed }) => [styles.btn, destructive ? styles.danger : styles.primary, pressed && styles.pressed]}
                     onPress={onConfirm}
                   >
-                    <Text style={[styles.confirmText, { color: destructive ? theme.colors.danger : theme.colors.accent }]}>
+                    <Text style={[styles.confirmText, f(10.7), { color: destructive ? theme.colors.danger : theme.colors.accent }]}>
                       {confirmText}
                     </Text>
                   </Pressable>

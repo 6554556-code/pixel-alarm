@@ -9,7 +9,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Animated, StyleSheet, View } from 'react-native';
 import * as Haptics from 'expo-haptics';
-import { THEME_OBJECTS, crispSize, theme } from '../theme';
+import { THEME_OBJECTS, crispSize, fontOf, theme, useTheme } from '../theme';
 
 export const WHEEL_ITEM_H = 48; // высота одной строки
 export const WHEEL_VISIBLE = 5; // сколько строк видно (центральная + по 2 сверху/снизу)
@@ -34,6 +34,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
 const clampIndex = (i: number, n: number) => Math.min(n - 1, Math.max(0, i));
 
 export function WheelPicker({ values, value, onChange, format = pad, align = 'center', pixel = false }: Props) {
+  const font = fontOf(useTheme()); // гламур — Forum; классика — системный
   const startIndex = Math.max(0, values.indexOf(value));
   const scrollY = useRef(new Animated.Value(startIndex * WHEEL_ITEM_H)).current;
   const scrollRef = useRef<any>(null);
@@ -103,7 +104,7 @@ export function WheelPicker({ values, value, onChange, format = pad, align = 'ce
           const scale = scrollY.interpolate({ inputRange: range, outputRange: [0.75, 0.85, 1, 0.85, 0.75], extrapolate: 'clamp' });
           return (
             <View key={v} style={[styles.row, { alignItems: ALIGN[align] }]}>
-              <Animated.Text style={[styles.item, { opacity, transform: [{ scale }] }]}>{format(v)}</Animated.Text>
+              <Animated.Text style={[styles.item, font, { opacity, transform: [{ scale }] }]}>{format(v)}</Animated.Text>
             </View>
           );
         })}

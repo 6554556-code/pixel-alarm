@@ -29,7 +29,10 @@ function useNow() {
 
 export default function App() {
   // Пиксельный шрифт (OFL, assets/fonts). Пока грузится — текст системным шрифтом.
-  useFonts({ PressStart2P: require('./assets/fonts/PressStart2P-Regular.ttf') });
+  useFonts({
+    PressStart2P: require('./assets/fonts/PressStart2P-Regular.ttf'),
+    Forum: require('./assets/fonts/Forum-Regular.ttf'),
+  });
   return (
     <SettingsProvider>
       <MainScreen />

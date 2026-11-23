@@ -96,7 +96,7 @@ export function SettingsModal({ visible, onClose }: Props) {
                   style={[styles.themeCard, active && styles.themeCardOn, !t.ready && { opacity: 0.55 }]}
                 >
                   <ThemePreview id={t.id} />
-                  <Text style={[styles.themeName, active && styles.themeNameOn]}>{t.name}</Text>
+                  <Text style={[styles.themeName, f(8), active && styles.themeNameOn]}>{t.name}</Text>
                 </Pressable>
               );
             })}

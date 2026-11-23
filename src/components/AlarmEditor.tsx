@@ -230,14 +230,14 @@ export function AlarmEditor({ visible, alarm, onSave, onDelete, onClose }: Props
                     return (
                       <Pressable key={d} onPress={() => toggleDay(d)}>
                         <GlamBubble style={styles.glamDay} tint={on ? "accent" : "pearl"} round>
-                          <Text style={[styles.dayText, on && styles.dayTextOn]}>{label}</Text>
+                          <Text style={[styles.dayText, fontOf(th), on && styles.dayTextOn]}>{label}</Text>
                         </GlamBubble>
                       </Pressable>
                     );
                   }
                   return (
                     <Pressable key={d} onPress={() => toggleDay(d)} style={[styles.day, on && styles.dayOn]}>
-                      <Text style={[styles.dayText, on && styles.dayTextOn]}>{label}</Text>
+                      <Text style={[styles.dayText, fontOf(th), on && styles.dayTextOn]}>{label}</Text>
                     </Pressable>
                   );
                 })}
@@ -335,7 +335,7 @@ export function AlarmEditor({ visible, alarm, onSave, onDelete, onClose }: Props
                     }}
                   >
                     <GlamBubble style={styles.glamDelete} tint="danger">
-                      <Text style={styles.deleteText}>Удалить будильник</Text>
+                      <Text style={[styles.deleteText, fontOf(th)]}>Удалить будильник</Text>
                     </GlamBubble>
                   </Pressable>
                 ) : (
@@ -346,7 +346,7 @@ export function AlarmEditor({ visible, alarm, onSave, onDelete, onClose }: Props
                       onDelete(alarm.id);
                     }}
                   >
-                    <Text style={styles.deleteText}>Удалить будильник</Text>
+                    <Text style={[styles.deleteText, fontOf(th)]}>Удалить будильник</Text>
                   </Pressable>
                 ))}
             </ScrollView>
