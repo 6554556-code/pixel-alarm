@@ -2,8 +2,8 @@
 // Стрелки рисуются в координатах картинки (1024×1024), камушек в центре кладём ПОВЕРХ стрелок,
 // чтобы стрелки «выходили» из-под него, как у настоящих часов.
 
-import { ReactNode, useState } from 'react';
-import { Image, StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
+import { ReactNode, useEffect, useRef, useState } from 'react';
+import { Animated, Image, Pressable, StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 import Svg, { Defs, G, Image as SvgImage, Line, LinearGradient, Polygon, Stop } from 'react-native-svg';
 import { THEME_OBJECTS } from '../theme';
 
@@ -176,4 +176,27 @@ export function GlamBubble({
 
 const bubble = StyleSheet.create({
   base: { alignItems: 'center', justifyContent: 'center' },
+});
+
+// Переключатель: фиолетовая «таблетка» (вкл) / жемчужная (выкл) и жемчужный шарик-бегунок
+export function GlamSwitch({ value, onValueChange }: { value: boolean; onValueChange: (v: boolean) => void }) {
+  const x = useRef(new Animated.Value(value ? 1 : 0)).current;
+  useEffect(() => {
+    Animated.spring(x, { toValue: value ? 1 : 0, useNativeDriver: true, speed: 20, bounciness: 8 }).start();
+  }, [value, x]);
+  const translateX = x.interpolate({ inputRange: [0, 1], outputRange: [2, SW_W - SW_KNOB - 2] });
+  return (
+    <Pressable onPress={() => onValueChange(!value)} hitSlop={10}>
+      <GlamBubble style={sw.track} tint={value ? 'accent' : 'pearl'}>
+        <Animated.Image source={BUBBLES.pearl.circle} style={[sw.knob, { transform: [{ translateX }] }]} />
+      </GlamBubble>
+    </Pressable>
+  );
+}
+
+const SW_W = 58;
+const SW_KNOB = 30;
+const sw = StyleSheet.create({
+  track: { width: SW_W, height: 34, alignItems: 'flex-start' },
+  knob: { width: SW_KNOB, height: SW_KNOB },
 });

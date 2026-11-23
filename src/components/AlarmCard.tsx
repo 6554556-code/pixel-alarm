@@ -10,7 +10,7 @@ import { LayoutAnimation, Pressable, StyleSheet, Switch, Text, View } from 'reac
 import Svg, { Path } from 'react-native-svg';
 import { fontOf, theme, useTheme } from '../theme';
 import { PixelBox, PixelIcon, PixelSwitch } from './Pixel';
-import { GlamBubble } from './Glam';
+import { GlamBubble, GlamSwitch } from './Glam';
 import { Alarm, formatAlarmTime, formatRepeat } from '../alarms';
 import { getMelody } from '../melodies';
 import { formatCountdownShort, nextRing } from '../time';
@@ -157,6 +157,8 @@ export function AlarmCard({ alarms, onAdd, onEdit, onToggle, onDelete }: Props) 
             {!deleting &&
               (px ? (
                 <PixelSwitch value={a.enabled} onValueChange={() => onToggle(a.id)} />
+              ) : th.glam ? (
+                <GlamSwitch value={a.enabled} onValueChange={() => onToggle(a.id)} />
               ) : (
                 <Switch
                   value={a.enabled}

@@ -7,7 +7,7 @@ import { setAudioModeAsync, useAudioPlayer, useAudioPlayerStatus } from 'expo-au
 import { fontOf, theme, useTheme } from '../theme';
 import { PixelBox, PixelIcon, PixelRadio, PixelSwitch } from './Pixel';
 import { PixelTimePicker } from './PixelTimePicker';
-import { GlamBubble } from './Glam';
+import { GlamBubble, GlamSwitch } from './Glam';
 import { Alarm, Weekday, newAlarm } from '../alarms';
 import { CATEGORIES, CategoryId, Voice, getMelody, melodiesIn } from '../melodies';
 import { SegmentedSwitch } from './SegmentedSwitch';
@@ -286,6 +286,8 @@ export function AlarmEditor({ visible, alarm, onSave, onDelete, onClose }: Props
                   <Text style={[styles.rowLabel, f(10.7)]}>Повтор</Text>
                   {px ? (
                     <PixelSwitch value={draft.snooze} onValueChange={(snooze) => set({ snooze })} />
+                  ) : th.glam ? (
+                    <GlamSwitch value={draft.snooze} onValueChange={(snooze) => set({ snooze })} />
                   ) : (
                     <Switch
                       value={draft.snooze}
