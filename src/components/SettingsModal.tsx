@@ -57,7 +57,7 @@ export function SettingsModal({ visible, onClose }: Props) {
             </Pressable>
           ) : th.glam ? (
             <Pressable onPress={onClose} hitSlop={8}>
-              <GlamBubble style={styles.glamBtn}>
+              <GlamBubble style={styles.glamBtn} round>
                 <CloseIcon />
               </GlamBubble>
             </Pressable>

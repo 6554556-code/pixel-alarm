@@ -94,7 +94,7 @@ export function AlarmCard({ alarms, onAdd, onEdit, onToggle, onDelete }: Props) 
           ) : (
             <Pressable style={!th.glam && styles.roundBtn} onPress={onAdd}>
               {th.glam ? (
-                <GlamBubble style={styles.glamRound}>
+                <GlamBubble style={styles.glamRound} round>
                   <Text style={styles.roundBtnText}>+</Text>
                 </GlamBubble>
               ) : (

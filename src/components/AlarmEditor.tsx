@@ -162,7 +162,7 @@ export function AlarmEditor({ visible, alarm, onSave, onDelete, onClose }: Props
                 </Pressable>
               ) : th.glam ? (
                 <Pressable onPress={close} hitSlop={8}>
-                  <GlamBubble style={styles.glamBtn}>
+                  <GlamBubble style={styles.glamBtn} round>
                     <CloseIcon />
                   </GlamBubble>
                 </Pressable>
@@ -180,7 +180,7 @@ export function AlarmEditor({ visible, alarm, onSave, onDelete, onClose }: Props
                 </Pressable>
               ) : th.glam ? (
                 <Pressable onPress={save} hitSlop={8}>
-                  <GlamBubble style={styles.glamBtn} tint="accent">
+                  <GlamBubble style={styles.glamBtn} tint="accent" round>
                     <CheckIcon color="#FFFFFF" width={2.4} />
                   </GlamBubble>
                 </Pressable>
@@ -229,7 +229,7 @@ export function AlarmEditor({ visible, alarm, onSave, onDelete, onClose }: Props
                   if (th.glam) {
                     return (
                       <Pressable key={d} onPress={() => toggleDay(d)}>
-                        <GlamBubble style={styles.glamDay} tint={on ? 'accent' : 'pearl'}>
+                        <GlamBubble style={styles.glamDay} tint={on ? "accent" : "pearl"} round>
                           <Text style={[styles.dayText, on && styles.dayTextOn]}>{label}</Text>
                         </GlamBubble>
                       </Pressable>
@@ -373,7 +373,7 @@ export function AlarmEditor({ visible, alarm, onSave, onDelete, onClose }: Props
                   }}
                   hitSlop={8}
                 >
-                  <GlamBubble style={styles.glamBtn}>
+                  <GlamBubble style={styles.glamBtn} round>
                     <ChevronLeft />
                   </GlamBubble>
                 </Pressable>
