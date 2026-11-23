@@ -6,6 +6,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useFonts } from 'expo-font';
 import { fontOf, theme, useTheme } from './src/theme';
 import { PixelBox, PixelIcon } from './src/components/Pixel';
+import { GlamBubble } from './src/components/Glam';
 import { AddCitySlot, CityClock } from './src/components/CityClock';
 import { AlarmCard } from './src/components/AlarmCard';
 import { CitySearchModal } from './src/components/CitySearchModal';
@@ -43,6 +44,13 @@ function HeaderButton({ onPress, children }: { onPress?: () => void; children: R
     return (
       <Pressable onPress={onPress} style={styles.headerBtnGap}>
         <PixelBox style={styles.pixelBtn}>{children}</PixelBox>
+      </Pressable>
+    );
+  }
+  if (th.glam) {
+    return (
+      <Pressable onPress={onPress} style={styles.headerBtnGap}>
+        <GlamBubble style={styles.glamBtn}>{children}</GlamBubble>
       </Pressable>
     );
   }
@@ -184,6 +192,7 @@ const styles = StyleSheet.create({
   title: { flex: 1, fontSize: 28, fontWeight: '700', color: theme.colors.text },
   headerBtnGap: { marginLeft: 8 },
   pixelBtn: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center' },
+  glamBtn: { width: 50, height: 50 },
   iconBtn: {
     width: 48,
     height: 48,

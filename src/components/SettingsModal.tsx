@@ -6,6 +6,7 @@ import { THEMES, ThemeId, useSettings } from '../settings';
 import { ClockFace } from './ClockFace';
 import { CloseIcon } from './Icons';
 import { PixelBox, PixelClockFace, PixelIcon } from './Pixel';
+import { GlamBubble } from './Glam';
 
 type Props = { visible: boolean; onClose: () => void };
 
@@ -53,6 +54,12 @@ export function SettingsModal({ visible, onClose }: Props) {
               <PixelBox style={styles.pxBtn}>
                 <PixelIcon name="close" size={24} />
               </PixelBox>
+            </Pressable>
+          ) : th.glam ? (
+            <Pressable onPress={onClose} hitSlop={8}>
+              <GlamBubble style={styles.glamBtn}>
+                <CloseIcon />
+              </GlamBubble>
             </Pressable>
           ) : (
             <Pressable style={styles.circleBtn} onPress={onClose} hitSlop={8}>
@@ -137,6 +144,7 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     boxShadow: 'inset 0 0 14px 2px rgba(139,108,240,0.18)',
   },
+  glamBtn: { width: 50, height: 50 },
   pxBtn: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center' },
   pxCardWrap: { flex: 1 },
   pxCard: { alignItems: 'center', paddingVertical: 14 },

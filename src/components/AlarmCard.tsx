@@ -10,6 +10,7 @@ import { LayoutAnimation, Pressable, StyleSheet, Switch, Text, View } from 'reac
 import Svg, { Path } from 'react-native-svg';
 import { fontOf, theme, useTheme } from '../theme';
 import { PixelBox, PixelIcon, PixelSwitch } from './Pixel';
+import { GlamBubble } from './Glam';
 import { Alarm, formatAlarmTime, formatRepeat } from '../alarms';
 import { getMelody } from '../melodies';
 import { formatCountdownShort, nextRing } from '../time';
@@ -91,8 +92,14 @@ export function AlarmCard({ alarms, onAdd, onEdit, onToggle, onDelete }: Props) 
               </View>
             </Pressable>
           ) : (
-            <Pressable style={styles.roundBtn} onPress={onAdd}>
-              <Text style={styles.roundBtnText}>+</Text>
+            <Pressable style={!th.glam && styles.roundBtn} onPress={onAdd}>
+              {th.glam ? (
+                <GlamBubble style={styles.glamRound}>
+                  <Text style={styles.roundBtnText}>+</Text>
+                </GlamBubble>
+              ) : (
+                <Text style={styles.roundBtnText}>+</Text>
+              )}
             </Pressable>
           ))}
         <View style={{ flex: 1 }} />
@@ -104,9 +111,17 @@ export function AlarmCard({ alarms, onAdd, onEdit, onToggle, onDelete }: Props) 
               </PixelBox>
             </Pressable>
           ) : (
-            <Pressable style={[styles.pill, styles.pillLayout]} onPress={deleting ? cancelDeleting : startDeleting}>
-              <Text style={styles.pillText}>{deleting ? 'Отмена' : 'Удалить все'}</Text>
-            </Pressable>
+            th.glam ? (
+              <Pressable onPress={deleting ? cancelDeleting : startDeleting}>
+                <GlamBubble style={styles.pillLayout}>
+                  <Text style={styles.pillText}>{deleting ? 'Отмена' : 'Удалить все'}</Text>
+                </GlamBubble>
+              </Pressable>
+            ) : (
+              <Pressable style={[styles.pill, styles.pillLayout]} onPress={deleting ? cancelDeleting : startDeleting}>
+                <Text style={styles.pillText}>{deleting ? 'Отмена' : 'Удалить все'}</Text>
+              </Pressable>
+            )
           ))}
       </View>
 
@@ -163,6 +178,17 @@ export function AlarmCard({ alarms, onAdd, onEdit, onToggle, onDelete }: Props) 
               </Text>
             </PixelBox>
           </Pressable>
+        ) : th.glam ? (
+          <Pressable disabled={marked.size === 0} onPress={confirmDelete} style={marked.size === 0 && styles.deleteBtnDisabled}>
+            <GlamBubble style={styles.deleteBtnLayout} tint="danger">
+              <View style={styles.glamRow}>
+                <TrashIcon color={theme.colors.danger} size={18} />
+                <Text style={styles.deleteBtnText}>
+                  {marked.size === 0 ? 'Ничего не выбрано' : `Удалить (${marked.size})`}
+                </Text>
+              </View>
+            </GlamBubble>
+          </Pressable>
         ) : (
           <Pressable
             disabled={marked.size === 0}
@@ -204,6 +230,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: theme.colors.cardBorder,
   },
+  glamRound: { width: 46, height: 46 },
+  glamRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   roundBtnText: { fontSize: 28, fontWeight: '300', color: theme.colors.text, marginTop: -2 },
   pill: {
     borderRadius: theme.radius.pill,

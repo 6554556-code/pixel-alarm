@@ -2,11 +2,12 @@
 // Внутри две «страницы»: основная и выбор мелодии.
 
 import { ReactNode, useEffect, useState } from 'react';
-import { Alert, Modal, Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
+import { Alert, Image, Modal, Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
 import { setAudioModeAsync, useAudioPlayer, useAudioPlayerStatus } from 'expo-audio';
 import { fontOf, theme, useTheme } from '../theme';
 import { PixelBox, PixelIcon, PixelRadio, PixelSwitch } from './Pixel';
 import { PixelTimePicker } from './PixelTimePicker';
+import { GlamBubble } from './Glam';
 import { Alarm, Weekday, newAlarm } from '../alarms';
 import { CATEGORIES, CategoryId, Voice, getMelody, melodiesIn } from '../melodies';
 import { SegmentedSwitch } from './SegmentedSwitch';
@@ -148,6 +149,7 @@ export function AlarmEditor({ visible, alarm, onSave, onDelete, onClose }: Props
   return (
     <Modal visible={visible} animationType="slide" presentationStyle="pageSheet" onRequestClose={close}>
       <View style={[styles.sheet, { backgroundColor: th.colors.background }]}>
+        {th.glam && <Image source={require('../../assets/glam/background.jpg')} style={styles.bgImage} resizeMode="cover" />}
         {page === 'main' ? (
           <>
             {/* Шапка: ✕ (в пиксельной — ←)  Новый будильник  ✓ */}
@@ -157,6 +159,12 @@ export function AlarmEditor({ visible, alarm, onSave, onDelete, onClose }: Props
                   <PixelBox style={styles.pxHeaderBtn}>
                     <ChevronLeft width={2.6} />
                   </PixelBox>
+                </Pressable>
+              ) : th.glam ? (
+                <Pressable onPress={close} hitSlop={8}>
+                  <GlamBubble style={styles.glamBtn}>
+                    <CloseIcon />
+                  </GlamBubble>
                 </Pressable>
               ) : (
                 <Pressable style={styles.circleBtn} onPress={close} hitSlop={8}>
@@ -169,6 +177,12 @@ export function AlarmEditor({ visible, alarm, onSave, onDelete, onClose }: Props
                   <PixelBox style={styles.pxHeaderBtn} fill={theme.colors.accent} glow={theme.colors.accent}>
                     <CheckIcon color="#FFFFFF" width={2.8} />
                   </PixelBox>
+                </Pressable>
+              ) : th.glam ? (
+                <Pressable onPress={save} hitSlop={8}>
+                  <GlamBubble style={styles.glamBtn} tint="accent">
+                    <CheckIcon color="#FFFFFF" width={2.4} />
+                  </GlamBubble>
                 </Pressable>
               ) : (
                 <Pressable style={[styles.circleBtn, styles.circleBtnAccent]} onPress={save} hitSlop={8}>
@@ -209,6 +223,15 @@ export function AlarmEditor({ visible, alarm, onSave, onDelete, onClose }: Props
                         >
                           <Text style={[styles.dayText, f(8), on && styles.dayTextOn]}>{label}</Text>
                         </PixelBox>
+                      </Pressable>
+                    );
+                  }
+                  if (th.glam) {
+                    return (
+                      <Pressable key={d} onPress={() => toggleDay(d)}>
+                        <GlamBubble style={styles.glamDay} tint={on ? 'accent' : 'pearl'}>
+                          <Text style={[styles.dayText, on && styles.dayTextOn]}>{label}</Text>
+                        </GlamBubble>
                       </Pressable>
                     );
                   }
@@ -302,6 +325,17 @@ export function AlarmEditor({ visible, alarm, onSave, onDelete, onClose }: Props
                       <Text style={[styles.deleteText, f(10.7)]}>Удалить будильник</Text>
                     </PixelBox>
                   </Pressable>
+                ) : th.glam ? (
+                  <Pressable
+                    onPress={() => {
+                      stopPreview();
+                      onDelete(alarm.id);
+                    }}
+                  >
+                    <GlamBubble style={styles.glamDelete} tint="danger">
+                      <Text style={styles.deleteText}>Удалить будильник</Text>
+                    </GlamBubble>
+                  </Pressable>
                 ) : (
                   <Pressable
                     style={({ pressed }) => [styles.deleteBtn, pressed && { opacity: 0.7 }]}
@@ -330,6 +364,18 @@ export function AlarmEditor({ visible, alarm, onSave, onDelete, onClose }: Props
                   <PixelBox style={styles.pxHeaderBtn}>
                     <ChevronLeft width={2.6} />
                   </PixelBox>
+                </Pressable>
+              ) : th.glam ? (
+                <Pressable
+                  onPress={() => {
+                    stopPreview();
+                    setPage('main');
+                  }}
+                  hitSlop={8}
+                >
+                  <GlamBubble style={styles.glamBtn}>
+                    <ChevronLeft />
+                  </GlamBubble>
                 </Pressable>
               ) : (
                 <Pressable
@@ -515,6 +561,10 @@ const styles = StyleSheet.create({
 
   card: { borderRadius: theme.radius.card, ...glass },
   cardLayout: { paddingHorizontal: 16 },
+  glamBtn: { width: 50, height: 50 },
+  bgImage: { position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' },
+  glamDay: { width: 44, height: 44 },
+  glamDelete: { marginTop: 20, height: 54 },
   pxHeaderBtn: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center' },
   pxDay: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
   pxDivider: { height: 2, backgroundColor: theme.colors.outline, marginLeft: 0 },

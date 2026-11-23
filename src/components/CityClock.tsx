@@ -4,6 +4,7 @@ import { ReactNode } from 'react';
 import { Pressable, StyleProp, StyleSheet, Text, View, ViewStyle } from 'react-native';
 import { fontOf, theme, useTheme } from '../theme';
 import { PixelBox } from './Pixel';
+import { GlamBubble } from './Glam';
 import { ClockFace } from './ClockFace';
 import { WeatherIcon } from './WeatherIcon';
 import { formatDate, formatTime, getZonedTime } from '../time';
@@ -32,6 +33,13 @@ function Chip({ children, style, night, day }: { children: ReactNode; style?: St
       >
         {children}
       </PixelBox>
+    );
+  }
+  if (th.glam) {
+    return (
+      <GlamBubble style={[styles.chipLayout, styles.glamChip, style]} tint={night ? 'night' : 'pearl'}>
+        {children}
+      </GlamBubble>
     );
   }
   return <View style={[styles.chip, styles.chipLayout, style, day && styles.chipDay, night && styles.chipNight]}>{children}</View>;
@@ -115,6 +123,7 @@ const styles = StyleSheet.create({
   },
   chipLayout: { marginTop: 8, paddingHorizontal: 10, paddingVertical: 6 },
   chipLayoutPx: { paddingHorizontal: 6, paddingVertical: 7, maxWidth: '100%', gap: 3 },
+  glamChip: { paddingVertical: 7 },
   weatherChip: { flexDirection: 'row', alignItems: 'center', gap: 5, maxWidth: '100%' },
   weatherText: { flexShrink: 1 },
   // Мягкое размытое свечение изнутри почти на всю плашку: днём белое, ночью синее.

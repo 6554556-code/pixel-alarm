@@ -2,7 +2,9 @@
 // Стрелки рисуются в координатах картинки (1024×1024), камушек в центре кладём ПОВЕРХ стрелок,
 // чтобы стрелки «выходили» из-под него, как у настоящих часов.
 
-import { Image, StyleSheet, View } from 'react-native';
+import { ReactNode } from 'react';
+import { Image, StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
+import { LinearGradient as LinearGradientView } from 'expo-linear-gradient';
 import Svg, { Defs, G, Image as SvgImage, Line, LinearGradient, Polygon, Stop } from 'react-native-svg';
 import { THEME_OBJECTS } from '../theme';
 
@@ -106,4 +108,66 @@ const styles = StyleSheet.create({
   wrap: { width: '100%', aspectRatio: 1 },
   // размер картинки задаём явно — иначе она рисуется в натуральную величину
   fill: { position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' },
+});
+
+// ---------- Пухлые стеклянные кнопки («жемчужины») ----------
+
+type Tint = 'pearl' | 'accent' | 'danger' | 'night';
+
+const TINTS: Record<Tint, { bg: string; border: string; inner: string; shadow: string; gloss: number }> = {
+  pearl: { bg: 'rgba(255,255,255,0.62)', border: 'rgba(255,255,255,0.95)', inner: 'rgba(150,130,210,0.22)', shadow: 'rgba(120,100,200,0.22)', gloss: 0.95 },
+  accent: { bg: 'rgba(139,108,240,0.92)', border: 'rgba(205,190,255,0.95)', inner: 'rgba(70,40,170,0.45)', shadow: 'rgba(139,108,240,0.45)', gloss: 0.75 },
+  danger: { bg: 'rgba(255,225,228,0.75)', border: 'rgba(255,255,255,0.95)', inner: 'rgba(229,87,91,0.35)', shadow: 'rgba(229,87,91,0.25)', gloss: 0.9 },
+  night: { bg: 'rgba(226,229,255,0.7)', border: 'rgba(255,255,255,0.95)', inner: 'rgba(110,120,240,0.35)', shadow: 'rgba(110,120,240,0.25)', gloss: 0.9 },
+};
+
+// Объём: тёмная дымка снизу изнутри + светлая сверху + мягкая тень наружу + блик-«капля» сверху
+export function GlamBubble({
+  style,
+  tint = 'pearl',
+  children,
+}: {
+  style?: StyleProp<ViewStyle>;
+  tint?: Tint;
+  children?: ReactNode;
+}) {
+  const t = TINTS[tint];
+  return (
+    <View
+      style={[
+        bubble.base,
+        {
+          backgroundColor: t.bg,
+          borderColor: t.border,
+          boxShadow: `inset 0 -7px 12px ${t.inner}, inset 0 5px 10px rgba(255,255,255,0.85), 0 6px 16px ${t.shadow}`,
+        },
+        style,
+      ]}
+    >
+      <LinearGradientView
+        colors={[`rgba(255,255,255,${t.gloss})`, 'rgba(255,255,255,0)']}
+        style={bubble.gloss}
+        pointerEvents="none"
+      />
+      {children}
+    </View>
+  );
+}
+
+const bubble = StyleSheet.create({
+  base: {
+    borderRadius: 999,
+    borderWidth: 1.5,
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'visible',
+  },
+  gloss: {
+    position: 'absolute',
+    top: 3,
+    left: '14%',
+    right: '14%',
+    height: '42%',
+    borderRadius: 999,
+  },
 });

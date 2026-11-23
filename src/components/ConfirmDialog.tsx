@@ -6,6 +6,7 @@ import { Animated, Modal, Pressable, StyleSheet, Text, View } from 'react-native
 import { BlurView } from 'expo-blur';
 import { fontOf, theme, useTheme } from '../theme';
 import { PixelBox } from './Pixel';
+import { GlamBubble } from './Glam';
 
 type Props = {
   visible: boolean;
@@ -81,6 +82,21 @@ export function ConfirmDialog({
                     </PixelBox>
                   </Pressable>
                 </>
+              ) : th.glam ? (
+                <>
+                  <Pressable style={styles.pxBtnWrap} onPress={onCancel}>
+                    <GlamBubble style={styles.glamBtn}>
+                      <Text style={styles.cancelText}>{cancelText}</Text>
+                    </GlamBubble>
+                  </Pressable>
+                  <Pressable style={styles.pxBtnWrap} onPress={onConfirm}>
+                    <GlamBubble style={styles.glamBtn} tint={destructive ? 'danger' : 'pearl'}>
+                      <Text style={[styles.confirmText, { color: destructive ? theme.colors.danger : theme.colors.accent }]}>
+                        {confirmText}
+                      </Text>
+                    </GlamBubble>
+                  </Pressable>
+                </>
               ) : (
                 <>
                   <Pressable style={({ pressed }) => [styles.btn, styles.cancel, pressed && styles.pressed]} onPress={onCancel}>
@@ -110,6 +126,7 @@ const styles = StyleSheet.create({
   cardSize: { width: '100%', maxWidth: 360 },
   pad: { padding: 22 },
   pxBtnWrap: { flex: 1 },
+  glamBtn: { height: 52 },
   pxBtn: { height: 52, alignItems: 'center', justifyContent: 'center' },
   card: {
     borderRadius: 30,
