@@ -103,7 +103,10 @@ function MainScreen() {
       <ScrollView contentContainerStyle={styles.content}>
         {/* Шапка */}
         <View style={styles.header}>
-          <Text style={[styles.title, fontOf(th, 13.3)]}>Часы и будильники</Text>
+          {/* В пиксельной теме заголовок по центру между левым краем и шестерёнкой */}
+          <Text style={[styles.title, fontOf(th, 13.3), th.pixel && { textAlign: 'center' }]} numberOfLines={1}>
+            Часы и будильники
+          </Text>
           <HeaderButton onPress={() => setSettingsOpen(true)}>
             {th.pixel ? <PixelIcon name="gear" size={26} /> : <Text style={styles.iconText}>⚙︎</Text>}
           </HeaderButton>

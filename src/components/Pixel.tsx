@@ -119,6 +119,17 @@ const DIALS = {
   add: { image: require('../../assets/pixel/dial_add.png'), neon: '#B5A8FF' },
 };
 
+// Неон без линии — только свечение: два слоя мягкой тени (ближний ярче, дальний шире).
+// scale — общая сила; размытие в px крутить здесь.
+function neonGlow(color: string, scale = 1) {
+  const a = (o: number) =>
+    color +
+    Math.round(Math.min(1, o * scale) * 255)
+      .toString(16)
+      .padStart(2, '0');
+  return `0 0 10px 2px ${a(0.85)}, 0 0 26px 8px ${a(0.45)}`;
+}
+
 // Какой циферблат взять: по цвету города (1-й, 2-й, 3-й) или «добавить»
 function dialFor(color: string, empty: boolean) {
   if (empty) return DIALS.add;
@@ -154,7 +165,7 @@ export function PixelClockFace({
   return (
     <View style={styles.dial} onLayout={(e) => setWidth(e.nativeEvent.layout.width)}>
       {/* Неоновое кольцо: обычное, гладкое, со свечением */}
-      <View style={[styles.neon, { borderColor: dial.neon, shadowColor: dial.neon }]} />
+      <View style={[styles.neon, { boxShadow: neonGlow(dial.neon) }]} />
       <Image source={dial.image} style={styles.fillImage} resizeMode="contain" />
       {!empty && cell > 0 && (
         <View style={{ position: 'absolute', left: offset, top: offset, width: size, height: size }}>
@@ -170,7 +181,7 @@ export function PixelClockFace({
 export function PixelAddDial({ size = 44 }: { size?: number }) {
   return (
     <View style={{ width: size, height: size }}>
-      <View style={[styles.neon, { borderColor: DIALS.add.neon, shadowColor: DIALS.add.neon, borderWidth: 1.5 }]} />
+      <View style={[styles.neon, { boxShadow: neonGlow(DIALS.add.neon, 0.6) }]} />
       <Image source={DIALS.add.image} style={styles.fillImage} resizeMode="contain" />
     </View>
   );
@@ -184,16 +195,13 @@ const styles = StyleSheet.create({
   dial: { width: '100%', aspectRatio: 1 },
   // Размер картинки задаём явно: иначе она рисуется в свою натуральную величину
   fillImage: { position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' },
+  // Круг ровно по циферблату: свечение расходится наружу из-под картинки
   neon: {
     position: 'absolute',
-    top: -3,
-    left: -3,
-    right: -3,
-    bottom: -3,
+    top: 1,
+    left: 1,
+    right: 1,
+    bottom: 1,
     borderRadius: 999,
-    borderWidth: 2,
-    shadowOpacity: 0.9,
-    shadowRadius: 7,
-    shadowOffset: { width: 0, height: 0 },
   },
 });
