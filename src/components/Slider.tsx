@@ -4,18 +4,20 @@
 import { useRef, useState } from 'react';
 import { PanResponder, StyleSheet, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { theme } from '../theme';
+import { THEME_OBJECTS, theme } from '../theme';
+import { PixelBox } from './Pixel';
 
 type Props = {
   value: number;
   min: number;
   max: number;
   onChange: (v: number) => void;
+  pixel?: boolean; // пиксельная тема: квадратная дорожка-«полоска здоровья» и бегунок-лесенка
 };
 
 const THUMB = 28;
 
-export function Slider({ value, min, max, onChange }: Props) {
+export function Slider({ value, min, max, onChange, pixel = false }: Props) {
   // Где шкала на экране: левый край (pageX) и ширина — нужны, чтобы перевести палец в значение
   const track = useRef({ pageX: 0, width: 1 });
   const [width, setWidth] = useState(0);
@@ -55,6 +57,27 @@ export function Slider({ value, min, max, onChange }: Props) {
   const ratio = (value - min) / (max - min || 1);
   const thumbLeft = ratio * Math.max(0, width - THUMB);
 
+  if (pixel) {
+    const PX = THEME_OBJECTS.pixel.colors;
+    return (
+      <View style={styles.hit} {...pan.panHandlers}>
+        <View
+          style={styles.pxTrack}
+          pointerEvents="none"
+          onLayout={(e) => {
+            setWidth(e.nativeEvent.layout.width);
+            track.current.width = Math.max(1, e.nativeEvent.layout.width);
+          }}
+        >
+          <View style={[styles.pxFill, { width: thumbLeft + THUMB / 2, backgroundColor: PX.accent }]} />
+        </View>
+        <View pointerEvents="none" style={[styles.pxThumbWrap, { left: thumbLeft }]}>
+          <PixelBox style={styles.pxThumb} fill="#FFFFFF" glow={PX.accent} />
+        </View>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.hit} {...pan.panHandlers}>
       <View
@@ -78,6 +101,16 @@ export function Slider({ value, min, max, onChange }: Props) {
 }
 
 const styles = StyleSheet.create({
+  pxTrack: {
+    height: 14,
+    borderWidth: 2,
+    borderColor: THEME_OBJECTS.pixel.colors.outline,
+    backgroundColor: '#E6E1F3',
+    overflow: 'hidden',
+  },
+  pxFill: { height: '100%' },
+  pxThumbWrap: { position: 'absolute', top: 8 },
+  pxThumb: { width: THUMB, height: THUMB },
   hit: { height: 44, justifyContent: 'center' }, // зона касания больше самой шкалы
   track: {
     height: 6,

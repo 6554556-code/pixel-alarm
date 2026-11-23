@@ -1,10 +1,12 @@
 // Экран «Новый будильник» / редактирование будильника (выезжает снизу).
 // Внутри две «страницы»: основная и выбор мелодии.
 
-import { useEffect, useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { Alert, Modal, Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
 import { setAudioModeAsync, useAudioPlayer, useAudioPlayerStatus } from 'expo-audio';
-import { theme } from '../theme';
+import { fontOf, theme, useTheme } from '../theme';
+import { PixelBox, PixelSwitch } from './Pixel';
+import { PixelTimePicker } from './PixelTimePicker';
 import { Alarm, Weekday, newAlarm } from '../alarms';
 import { CATEGORIES, CategoryId, Voice, getMelody, melodiesIn } from '../melodies';
 import { SegmentedSwitch } from './SegmentedSwitch';
@@ -49,10 +51,19 @@ const DAYS: { d: Weekday; label: string }[] = [
 const SNOOZE_MIN = 1;
 const SNOOZE_MAX = 30;
 
+// Карточка настроек: стекло в классике, рамка-«лесенка» в пиксельной теме
+function SettingsCard({ pixel, children }: { pixel: boolean; children: ReactNode }) {
+  if (pixel) return <PixelBox style={styles.cardLayout}>{children}</PixelBox>;
+  return <View style={[styles.card, styles.cardLayout]}>{children}</View>;
+}
+
 export function AlarmEditor({ visible, alarm, onSave, onDelete, onClose }: Props) {
   // Черновик: всё, что меняем на экране, до нажатия ✓
   const [draft, setDraft] = useState<Alarm>(() => newAlarm(7, 0));
   const [page, setPage] = useState<'main' | 'melody'>('main');
+  const th = useTheme();
+  const px = th.pixel;
+  const f = (size: number) => fontOf(th, size); // пиксельный шрифт нужного размера (в классике — ничего)
   // Фильтр на странице мелодий: null = все разделы
   const [filter, setFilter] = useState<CategoryId | null>(null);
   // Переключатель М / Ж / Общие (общие видны всегда); последний выбор запоминаем
@@ -136,18 +147,34 @@ export function AlarmEditor({ visible, alarm, onSave, onDelete, onClose }: Props
 
   return (
     <Modal visible={visible} animationType="slide" presentationStyle="pageSheet" onRequestClose={close}>
-      <View style={styles.sheet}>
+      <View style={[styles.sheet, { backgroundColor: th.colors.background }]}>
         {page === 'main' ? (
           <>
-            {/* Шапка: ✕  Новый будильник  ✓ */}
+            {/* Шапка: ✕ (в пиксельной — ←)  Новый будильник  ✓ */}
             <View style={styles.header}>
-              <Pressable style={styles.circleBtn} onPress={close} hitSlop={8}>
-                <CloseIcon />
-              </Pressable>
-              <Text style={styles.title}>{alarm ? 'Будильник' : 'Новый будильник'}</Text>
-              <Pressable style={[styles.circleBtn, styles.circleBtnAccent]} onPress={save} hitSlop={8}>
-                <CheckIcon color="#FFFFFF" width={2.2} />
-              </Pressable>
+              {px ? (
+                <Pressable onPress={close} hitSlop={8}>
+                  <PixelBox style={styles.pxHeaderBtn}>
+                    <ChevronLeft width={2.6} />
+                  </PixelBox>
+                </Pressable>
+              ) : (
+                <Pressable style={styles.circleBtn} onPress={close} hitSlop={8}>
+                  <CloseIcon />
+                </Pressable>
+              )}
+              <Text style={[styles.title, f(13.3)]}>{alarm ? 'Будильник' : 'Новый будильник'}</Text>
+              {px ? (
+                <Pressable onPress={save} hitSlop={8}>
+                  <PixelBox style={styles.pxHeaderBtn} fill={theme.colors.accent} glow={theme.colors.accent}>
+                    <CheckIcon color="#FFFFFF" width={2.8} />
+                  </PixelBox>
+                </Pressable>
+              ) : (
+                <Pressable style={[styles.circleBtn, styles.circleBtnAccent]} onPress={save} hitSlop={8}>
+                  <CheckIcon color="#FFFFFF" width={2.2} />
+                </Pressable>
+              )}
             </View>
 
             <ScrollView
@@ -156,17 +183,35 @@ export function AlarmEditor({ visible, alarm, onSave, onDelete, onClose }: Props
               automaticallyAdjustKeyboardInsets
             >
               {/* Барабан времени со стеклянной «таблеткой» */}
-              <View style={styles.wheels} key={session}>
-                <View style={styles.wheelPill} pointerEvents="none" />
-                <WheelPicker values={HOURS} value={draft.hour} onChange={(hour) => set({ hour })} align="right" />
-                <WheelPicker values={MINUTES} value={draft.minute} onChange={(minute) => set({ minute })} align="left" />
-              </View>
-              <Text style={styles.inText}>Зазвонит через {inText}</Text>
+              {px ? (
+                <PixelTimePicker key={session} hour={draft.hour} minute={draft.minute} onChange={set} />
+              ) : (
+                <View style={styles.wheels} key={session}>
+                  <View style={styles.wheelPill} pointerEvents="none" />
+                  <WheelPicker values={HOURS} value={draft.hour} onChange={(hour) => set({ hour })} align="right" />
+                  <WheelPicker values={MINUTES} value={draft.minute} onChange={(minute) => set({ minute })} align="left" />
+                </View>
+              )}
+              <Text style={[styles.inText, f(8)]}>Зазвонит через {inText}</Text>
 
               {/* Дни недели */}
               <View style={styles.days}>
                 {DAYS.map(({ d, label }) => {
                   const on = draft.weekdays.includes(d);
+                  if (px) {
+                    return (
+                      <Pressable key={d} onPress={() => toggleDay(d)}>
+                        <PixelBox
+                          style={styles.pxDay}
+                          fill={on ? theme.colors.accent : '#FFFFFF'}
+                          stroke={on ? '#5B3FC4' : th.colors.outline}
+                          glow={on ? theme.colors.accent : undefined}
+                        >
+                          <Text style={[styles.dayText, f(8), on && styles.dayTextOn]}>{label}</Text>
+                        </PixelBox>
+                      </Pressable>
+                    );
+                  }
                   return (
                     <Pressable key={d} onPress={() => toggleDay(d)} style={[styles.day, on && styles.dayOn]}>
                       <Text style={[styles.dayText, on && styles.dayTextOn]}>{label}</Text>
@@ -176,11 +221,11 @@ export function AlarmEditor({ visible, alarm, onSave, onDelete, onClose }: Props
               </View>
 
               {/* Настройки */}
-              <View style={styles.card}>
+              <SettingsCard pixel={px}>
                 <View style={styles.row}>
                   <PencilIcon />
                   <TextInput
-                    style={styles.noteInput}
+                    style={[styles.noteInput, f(10.7)]}
                     placeholder="Заметка"
                     placeholderTextColor={theme.colors.textMuted}
                     value={draft.note}
@@ -190,7 +235,7 @@ export function AlarmEditor({ visible, alarm, onSave, onDelete, onClose }: Props
                   />
                 </View>
 
-                <View style={styles.divider} />
+                <View style={[styles.divider, px && styles.pxDivider]} />
 
                 <Pressable
                   style={styles.row}
@@ -203,52 +248,71 @@ export function AlarmEditor({ visible, alarm, onSave, onDelete, onClose }: Props
                   }}
                 >
                   <NoteIcon />
-                  <Text style={styles.rowLabel}>Мелодия</Text>
+                  <Text style={[styles.rowLabel, f(10.7)]}>Мелодия</Text>
                   <CategoryIcon id={getMelody(draft.melody).category} size={18} />
-                  <Text style={styles.rowValue}>{getMelody(draft.melody).name}</Text>
+                  <Text style={[styles.rowValue, f(8), px && styles.pxRowValue]} numberOfLines={1}>
+                    {getMelody(draft.melody).name}
+                  </Text>
                   <ChevronRight size={18} color={theme.colors.textMuted} />
                 </Pressable>
 
-                <View style={styles.divider} />
+                <View style={[styles.divider, px && styles.pxDivider]} />
 
                 <View style={styles.row}>
                   <BellIcon />
-                  <Text style={styles.rowLabel}>Повтор</Text>
-                  <Switch
-                    value={draft.snooze}
-                    onValueChange={(snooze) => set({ snooze })}
-                    trackColor={{ false: theme.colors.switchOff, true: theme.colors.accent }}
-                  />
+                  <Text style={[styles.rowLabel, f(10.7)]}>Повтор</Text>
+                  {px ? (
+                    <PixelSwitch value={draft.snooze} onValueChange={(snooze) => set({ snooze })} />
+                  ) : (
+                    <Switch
+                      value={draft.snooze}
+                      onValueChange={(snooze) => set({ snooze })}
+                      trackColor={{ false: theme.colors.switchOff, true: theme.colors.accent }}
+                    />
+                  )}
                 </View>
 
                 {draft.snooze && (
                   <View style={styles.snooze}>
                     <View style={styles.snoozeHead}>
-                      <Text style={styles.snoozeLabel}>Каждые</Text>
-                      <Text style={styles.snoozeValue}>{draft.snoozeMinutes} мин</Text>
+                      <Text style={[styles.snoozeLabel, f(8)]}>Каждые</Text>
+                      <Text style={[styles.snoozeValue, f(10.7)]}>{draft.snoozeMinutes} мин</Text>
                     </View>
                     <Slider
                       value={draft.snoozeMinutes}
                       min={SNOOZE_MIN}
                       max={SNOOZE_MAX}
                       onChange={(snoozeMinutes) => set({ snoozeMinutes })}
+                      pixel={px}
                     />
                   </View>
                 )}
-              </View>
+              </SettingsCard>
 
               {/* Удаление — только у существующего будильника */}
-              {alarm && (
-                <Pressable
-                  style={({ pressed }) => [styles.deleteBtn, pressed && { opacity: 0.7 }]}
-                  onPress={() => {
-                    stopPreview();
-                    onDelete(alarm.id);
-                  }}
-                >
-                  <Text style={styles.deleteText}>Удалить будильник</Text>
-                </Pressable>
-              )}
+              {alarm &&
+                (px ? (
+                  <Pressable
+                    onPress={() => {
+                      stopPreview();
+                      onDelete(alarm.id);
+                    }}
+                  >
+                    <PixelBox style={styles.pxDelete} fill="#FDE3E4" stroke={theme.colors.danger}>
+                      <Text style={[styles.deleteText, f(10.7)]}>Удалить будильник</Text>
+                    </PixelBox>
+                  </Pressable>
+                ) : (
+                  <Pressable
+                    style={({ pressed }) => [styles.deleteBtn, pressed && { opacity: 0.7 }]}
+                    onPress={() => {
+                      stopPreview();
+                      onDelete(alarm.id);
+                    }}
+                  >
+                    <Text style={styles.deleteText}>Удалить будильник</Text>
+                  </Pressable>
+                ))}
             </ScrollView>
           </>
         ) : (
@@ -320,7 +384,7 @@ export function AlarmEditor({ visible, alarm, onSave, onDelete, onClose }: Props
                       <CategoryIcon id={c.id} size={22} />
                       <Text style={styles.sectionTitle}>{c.name}</Text>
                     </View>
-                    <View style={styles.card}>
+                    <View style={[styles.card, styles.cardLayout]}>
                       {/* Первая строка Чиптюна — вход в синтезатор */}
                       {isChiptune && (
                         <Pressable
@@ -422,7 +486,13 @@ const styles = StyleSheet.create({
   dayText: { fontSize: 14, color: theme.colors.text },
   dayTextOn: { color: '#FFFFFF', fontWeight: '600' },
 
-  card: { borderRadius: theme.radius.card, paddingHorizontal: 16, ...glass },
+  card: { borderRadius: theme.radius.card, ...glass },
+  cardLayout: { paddingHorizontal: 16 },
+  pxHeaderBtn: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center' },
+  pxDay: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
+  pxDivider: { height: 2, backgroundColor: theme.colors.outline, marginLeft: 0 },
+  pxRowValue: { flexShrink: 1 },
+  pxDelete: { marginTop: 20, height: 54, alignItems: 'center', justifyContent: 'center' },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 56, paddingVertical: 8 },
   rowLabel: { flex: 1, fontSize: 17, color: theme.colors.text },
   rowValue: { fontSize: 16, color: theme.colors.accent },

@@ -205,3 +205,16 @@ const styles = StyleSheet.create({
     borderRadius: 999,
   },
 });
+
+// Пиксельный треугольник ▲/▼ из полосок (чёткий, без сглаживания)
+export function PixelTriangle({ dir = 'up', cell = 3, color = P.outline }: { dir?: 'up' | 'down'; cell?: number; color?: string }) {
+  const rows = [1, 3, 5, 7, 9]; // ширина каждой строки в клетках
+  const ordered = dir === 'up' ? rows : [...rows].reverse();
+  return (
+    <View style={{ alignItems: 'center' }}>
+      {ordered.map((w, i) => (
+        <View key={i} style={{ width: w * cell, height: cell, backgroundColor: color }} />
+      ))}
+    </View>
+  );
+}
