@@ -2,7 +2,7 @@
 // Тянешь бегунок или тапаешь по шкале — значение меняется сразу.
 
 import { useRef, useState } from 'react';
-import { PanResponder, StyleSheet, View } from 'react-native';
+import { Image, PanResponder, StyleSheet, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { THEME_OBJECTS, theme } from '../theme';
 import { PixelBox } from './Pixel';
@@ -13,11 +13,14 @@ type Props = {
   max: number;
   onChange: (v: number) => void;
   pixel?: boolean; // пиксельная тема: квадратная дорожка-«полоска здоровья» и бегунок-лесенка
+  glam?: boolean; // гламур: бегунок — стеклянный пузырь
 };
 
 const THUMB = 28;
+const GLAM_THUMB = 34; // пузырь чуть крупнее: у картинки прозрачные поля
+const BUBBLE = require('../../assets/glam/bubble_circle.png');
 
-export function Slider({ value, min, max, onChange, pixel = false }: Props) {
+export function Slider({ value, min, max, onChange, pixel = false, glam = false }: Props) {
   // Где шкала на экране: левый край (pageX) и ширина — нужны, чтобы перевести палец в значение
   const track = useRef({ pageX: 0, width: 1 });
   const [width, setWidth] = useState(0);
@@ -95,7 +98,11 @@ export function Slider({ value, min, max, onChange, pixel = false }: Props) {
           style={[styles.fill, { width: thumbLeft + THUMB / 2 }]}
         />
       </View>
-      <View pointerEvents="none" style={[styles.thumb, { left: thumbLeft }]} />
+      {glam ? (
+        <Image source={BUBBLE} pointerEvents="none" style={[styles.glamThumb, { left: thumbLeft - (GLAM_THUMB - THUMB) / 2 }]} />
+      ) : (
+        <View pointerEvents="none" style={[styles.thumb, { left: thumbLeft }]} />
+      )}
     </View>
   );
 }
@@ -119,6 +126,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   fill: { height: '100%', borderRadius: 3 },
+  glamThumb: { position: 'absolute', width: GLAM_THUMB, height: GLAM_THUMB },
   thumb: {
     position: 'absolute',
     width: THUMB,

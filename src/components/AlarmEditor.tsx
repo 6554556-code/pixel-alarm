@@ -201,7 +201,13 @@ export function AlarmEditor({ visible, alarm, onSave, onDelete, onClose }: Props
                 <PixelTimePicker key={session} hour={draft.hour} minute={draft.minute} onChange={set} />
               ) : (
                 <View style={styles.wheels} key={session}>
-                  <View style={styles.wheelPill} pointerEvents="none" />
+                  {th.glam ? (
+                    <View style={styles.glamWheelPill} pointerEvents="none">
+                      <GlamBubble style={StyleSheet.absoluteFill} />
+                    </View>
+                  ) : (
+                    <View style={styles.wheelPill} pointerEvents="none" />
+                  )}
                   <WheelPicker values={HOURS} value={draft.hour} onChange={(hour) => set({ hour })} align="right" />
                   <WheelPicker values={MINUTES} value={draft.minute} onChange={(minute) => set({ minute })} align="left" />
                 </View>
@@ -309,6 +315,7 @@ export function AlarmEditor({ visible, alarm, onSave, onDelete, onClose }: Props
                       max={SNOOZE_MAX}
                       onChange={(snoozeMinutes) => set({ snoozeMinutes })}
                       pixel={px}
+                      glam={th.glam}
                     />
                   </View>
                 )}
@@ -424,6 +431,20 @@ export function AlarmEditor({ visible, alarm, onSave, onDelete, onClose }: Props
               {CATEGORIES.map((c) => {
                 const active = filter === c.id;
                 const empty = c.id !== 'chiptune' && melodiesIn(c.id, voice).length === 0;
+                if (th.glam) {
+                  return (
+                    <Pressable
+                      key={c.id}
+                      disabled={empty}
+                      onPress={() => setFilter(active ? null : c.id)}
+                      style={empty && { opacity: 0.35 }}
+                    >
+                      <GlamBubble style={styles.glamFilter} tint={active ? 'accent' : 'pearl'} round>
+                        <CategoryIcon id={c.id} size={26} color={active ? '#FFFFFF' : theme.colors.accent} />
+                      </GlamBubble>
+                    </Pressable>
+                  );
+                }
                 return (
                   <Pressable
                     key={c.id}
@@ -477,6 +498,12 @@ export function AlarmEditor({ visible, alarm, onSave, onDelete, onClose }: Props
                                   <PixelBox style={styles.pxPlay} fill="#F1ECFF" stroke={th.colors.outline} step={2}>
                                     <PixelIcon name={playing ? 'pause' : 'play'} size={18} />
                                   </PixelBox>
+                                </Pressable>
+                              ) : th.glam ? (
+                                <Pressable onPress={() => togglePreview(m.id)} hitSlop={8}>
+                                  <GlamBubble style={styles.glamPlay} tint={playing ? 'accent' : 'pearl'} round>
+                                    {playing ? <PauseIcon color="#FFFFFF" /> : <PlayIcon />}
+                                  </GlamBubble>
                                 </Pressable>
                               ) : (
                                 <Pressable style={styles.playBtn} onPress={() => togglePreview(m.id)} hitSlop={8}>
@@ -566,6 +593,15 @@ const styles = StyleSheet.create({
   glamBtn: { width: 50, height: 50 },
   bgImage: { position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' },
   glamDay: { width: 44, height: 44 },
+  glamFilter: { width: 54, height: 54 },
+  glamPlay: { width: 40, height: 40 },
+  glamWheelPill: {
+    position: 'absolute',
+    left: 20,
+    right: 20,
+    top: WHEEL_ITEM_H * 2 - 6,
+    height: WHEEL_ITEM_H + 12,
+  },
   glamDelete: { marginTop: 20, height: 54 },
   pxHeaderBtn: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center' },
   pxDay: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
@@ -586,7 +622,7 @@ const styles = StyleSheet.create({
 
   voiceBar: { paddingHorizontal: 16, marginTop: 8 },
   filterBar: { flexGrow: 0, marginTop: 12, marginBottom: 4 },
-  filterContent: { paddingHorizontal: 16, gap: 10 },
+  filterContent: { paddingHorizontal: 16, paddingVertical: 4, gap: 10 },
   filterBtn: {
     width: 52,
     height: 52,
