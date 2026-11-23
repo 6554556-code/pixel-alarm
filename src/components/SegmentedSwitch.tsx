@@ -2,7 +2,7 @@
 // Стеклянная капсула, под выбранным вариантом едет фиолетовая «таблетка».
 
 import { useEffect, useRef, useState } from 'react';
-import { Animated, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Animated, Pressable, StyleSheet, Text, TextStyle, View } from 'react-native';
 import { theme } from '../theme';
 
 type Option<T extends string> = { value: T; label: string };
@@ -11,11 +11,12 @@ type Props<T extends string> = {
   options: Option<T>[];
   value: T;
   onChange: (v: T) => void;
+  textStyle?: TextStyle; // например, пиксельный шрифт
 };
 
 const PAD = 4;
 
-export function SegmentedSwitch<T extends string>({ options, value, onChange }: Props<T>) {
+export function SegmentedSwitch<T extends string>({ options, value, onChange, textStyle }: Props<T>) {
   const [width, setWidth] = useState(0);
   const segW = width > 0 ? (width - PAD * 2) / options.length : 0;
   const index = Math.max(0, options.findIndex((o) => o.value === value));
@@ -32,7 +33,7 @@ export function SegmentedSwitch<T extends string>({ options, value, onChange }: 
         const on = o.value === value;
         return (
           <Pressable key={o.value} style={styles.seg} onPress={() => onChange(o.value)} hitSlop={4}>
-            <Text style={[styles.label, on && styles.labelOn]}>{o.label}</Text>
+            <Text style={[styles.label, textStyle, on && styles.labelOn]}>{o.label}</Text>
           </Pressable>
         );
       })}

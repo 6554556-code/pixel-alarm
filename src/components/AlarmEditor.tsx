@@ -5,7 +5,7 @@ import { ReactNode, useEffect, useState } from 'react';
 import { Alert, Modal, Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
 import { setAudioModeAsync, useAudioPlayer, useAudioPlayerStatus } from 'expo-audio';
 import { fontOf, theme, useTheme } from '../theme';
-import { PixelBox, PixelSwitch } from './Pixel';
+import { PixelBox, PixelIcon, PixelRadio, PixelSwitch } from './Pixel';
 import { PixelTimePicker } from './PixelTimePicker';
 import { Alarm, Weekday, newAlarm } from '../alarms';
 import { CATEGORIES, CategoryId, Voice, getMelody, melodiesIn } from '../melodies';
@@ -248,7 +248,7 @@ export function AlarmEditor({ visible, alarm, onSave, onDelete, onClose }: Props
                   }}
                 >
                   <NoteIcon />
-                  <Text style={[styles.rowLabel, f(10.7)]}>Мелодия</Text>
+                  <Text style={[styles.rowLabel, f(10.7)]}>Звук</Text>
                   <CategoryIcon id={getMelody(draft.melody).category} size={18} />
                   <Text style={[styles.rowValue, f(8), px && styles.pxRowValue]} numberOfLines={1}>
                     {getMelody(draft.melody).name}
@@ -319,17 +319,33 @@ export function AlarmEditor({ visible, alarm, onSave, onDelete, onClose }: Props
           <>
             {/* Страница выбора мелодии */}
             <View style={styles.header}>
-              <Pressable
-                style={styles.circleBtn}
-                onPress={() => {
-                  stopPreview();
-                  setPage('main');
-                }}
-                hitSlop={8}
-              >
-                <ChevronLeft />
-              </Pressable>
-              <Text style={styles.title}>Мелодия</Text>
+              {px ? (
+                <Pressable
+                  onPress={() => {
+                    stopPreview();
+                    setPage('main');
+                  }}
+                  hitSlop={8}
+                >
+                  <PixelBox style={styles.pxHeaderBtn}>
+                    <ChevronLeft width={2.6} />
+                  </PixelBox>
+                </Pressable>
+              ) : (
+                <Pressable
+                  style={styles.circleBtn}
+                  onPress={() => {
+                    stopPreview();
+                    setPage('main');
+                  }}
+                  hitSlop={8}
+                >
+                  <ChevronLeft />
+                </Pressable>
+              )}
+              <Text style={[styles.title, f(13.3)]} numberOfLines={1}>
+                Мелодии и голоса
+              </Text>
               <View style={{ width: 48 }} />
             </View>
 
@@ -342,6 +358,7 @@ export function AlarmEditor({ visible, alarm, onSave, onDelete, onClose }: Props
                   { value: 'any', label: 'Общие' },
                 ]}
                 value={voice}
+                textStyle={f(10.7)}
                 onChange={(v) => {
                   changeVoice(v);
                   if (filter && filter !== 'chiptune' && melodiesIn(filter, v).length === 0) setFilter(null);
@@ -382,7 +399,7 @@ export function AlarmEditor({ visible, alarm, onSave, onDelete, onClose }: Props
                   <View key={c.id} style={styles.section}>
                     <View style={styles.sectionHead}>
                       <CategoryIcon id={c.id} size={22} />
-                      <Text style={styles.sectionTitle}>{c.name}</Text>
+                      <Text style={[styles.sectionTitle, f(10.7)]}>{c.name}</Text>
                     </View>
                     <View style={[styles.card, styles.cardLayout]}>
                       {/* Первая строка Чиптюна — вход в синтезатор */}
@@ -392,7 +409,9 @@ export function AlarmEditor({ visible, alarm, onSave, onDelete, onClose }: Props
                           onPress={() => Alert.alert('Синтезатор', 'Скоро здесь можно будет сочинить свою мелодию 🎹')}
                         >
                           <PianoIcon color={theme.colors.accent} />
-                          <Text style={[styles.rowLabel, { color: theme.colors.accent, fontWeight: '600' }]}>Создать свою</Text>
+                          <Text style={[styles.rowLabel, { color: theme.colors.accent, fontWeight: '600' }, f(10.7)]}>
+                            Создать свою
+                          </Text>
                           <ChevronRight size={18} color={theme.colors.textMuted} />
                         </Pressable>
                       )}
@@ -403,11 +422,19 @@ export function AlarmEditor({ visible, alarm, onSave, onDelete, onClose }: Props
                           <View key={m.id}>
                             {(i > 0 || isChiptune) && <View style={styles.divider} />}
                             <Pressable style={styles.row} onPress={() => set({ melody: m.id })}>
-                              <RadioDot on={selected} />
-                              <Text style={[styles.rowLabel, selected && { fontWeight: '600' }]}>{m.name}</Text>
-                              <Pressable style={styles.playBtn} onPress={() => togglePreview(m.id)} hitSlop={8}>
-                                {playing ? <PauseIcon /> : <PlayIcon />}
-                              </Pressable>
+                              {px ? <PixelRadio on={selected} /> : <RadioDot on={selected} />}
+                              <Text style={[styles.rowLabel, selected && { fontWeight: '600' }, f(10.7)]}>{m.name}</Text>
+                              {px ? (
+                                <Pressable onPress={() => togglePreview(m.id)} hitSlop={8}>
+                                  <PixelBox style={styles.pxPlay} fill="#F1ECFF" stroke={th.colors.outline} step={2}>
+                                    <PixelIcon name={playing ? 'pause' : 'play'} size={18} />
+                                  </PixelBox>
+                                </Pressable>
+                              ) : (
+                                <Pressable style={styles.playBtn} onPress={() => togglePreview(m.id)} hitSlop={8}>
+                                  {playing ? <PauseIcon /> : <PlayIcon />}
+                                </Pressable>
+                              )}
                             </Pressable>
                           </View>
                         );
@@ -492,6 +519,7 @@ const styles = StyleSheet.create({
   pxDay: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
   pxDivider: { height: 2, backgroundColor: theme.colors.outline, marginLeft: 0 },
   pxRowValue: { flexShrink: 1 },
+  pxPlay: { width: 36, height: 36, alignItems: 'center', justifyContent: 'center' },
   pxDelete: { marginTop: 20, height: 54, alignItems: 'center', justifyContent: 'center' },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 56, paddingVertical: 8 },
   rowLabel: { flex: 1, fontSize: 17, color: theme.colors.text },

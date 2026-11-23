@@ -193,6 +193,8 @@ const styles = StyleSheet.create({
   knobOn: { left: 56 - 5 - 20 },
   knobOff: { left: 5 },
   dial: { width: '100%', aspectRatio: 1 },
+  radio: { width: 22, height: 22, alignItems: 'center', justifyContent: 'center' },
+  radioDot: { width: 10, height: 10, backgroundColor: P.accent },
   // Размер картинки задаём явно: иначе она рисуется в свою натуральную величину
   fillImage: { position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' },
   // Круг ровно по циферблату: свечение расходится наружу из-под картинки
@@ -216,5 +218,14 @@ export function PixelTriangle({ dir = 'up', cell = 3, color = P.outline }: { dir
         <View key={i} style={{ width: w * cell, height: cell, backgroundColor: color }} />
       ))}
     </View>
+  );
+}
+
+// Пиксельная «радио-кнопка»: квадратик-лесенка, выбранный — с фиолетовым квадратом внутри
+export function PixelRadio({ on }: { on: boolean }) {
+  return (
+    <PixelBox style={styles.radio} stroke={on ? P.accent : '#B9B3CB'} step={2} glow={on ? P.accent : undefined}>
+      {on && <View style={styles.radioDot} />}
+    </PixelBox>
   );
 }
