@@ -10,7 +10,7 @@ import { LayoutAnimation, Pressable, StyleSheet, Switch, Text, View } from 'reac
 import Svg, { Path } from 'react-native-svg';
 import { fontOf, theme, useTheme } from '../theme';
 import { PixelBox, PixelIcon, PixelSwitch } from './Pixel';
-import { GlamBubble, GlamSwitch } from './Glam';
+import { GlamBar, GlamBubble, GlamSwitch } from './Glam';
 import { Alarm, formatAlarmTime, formatRepeat } from '../alarms';
 import { getMelody } from '../melodies';
 import { formatCountdownShort, nextRing } from '../time';
@@ -143,7 +143,7 @@ export function AlarmCard({ alarms, onAdd, onEdit, onToggle, onDelete }: Props) 
             {highlighted && px && <PixelBox style={StyleSheet.absoluteFill} />}
             {/* Кружок выбора: красный = удалить, пустой = оставить */}
             {deleting && <View style={[styles.mark, isMarked ? styles.markOn : styles.markOff, px && styles.square]} />}
-            {highlighted && <View style={[styles.activeBar, px && styles.square]} />}
+            {highlighted && (th.glam ? <GlamBar /> : <View style={[styles.activeBar, px && styles.square]} />)}
 
             <View style={{ flex: 1 }}>
               <Text style={[styles.time, fontOf(th, 26.7), isMarked && styles.timeMarked]}>{formatAlarmTime(a)}</Text>

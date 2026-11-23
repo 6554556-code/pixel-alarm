@@ -3,6 +3,7 @@
 // чтобы стрелки «выходили» из-под него, как у настоящих часов.
 
 import { ReactNode, useEffect, useRef, useState } from 'react';
+import { LinearGradient as ExpoLinearGradient } from 'expo-linear-gradient';
 import { Animated, Image, Pressable, StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 import Svg, { Defs, G, Image as SvgImage, Line, LinearGradient, Polygon, Stop } from 'react-native-svg';
 import { THEME_OBJECTS } from '../theme';
@@ -199,4 +200,37 @@ const SW_KNOB = 30;
 const sw = StyleSheet.create({
   track: { width: SW_W, height: 34, alignItems: 'flex-start' },
   knob: { width: SW_KNOB, height: SW_KNOB },
+});
+
+// Фиолетовая «палочка» активного будильника: объёмная, с бликом и свечением
+export function GlamBar() {
+  return (
+    <View style={bar.wrap}>
+      <ExpoLinearGradient
+        colors={['#D9C9FF', '#8B5CF6', '#5A2FD0']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 0 }}
+        style={bar.fill}
+      />
+      {/* блик сверху вниз по левому краю */}
+      <ExpoLinearGradient
+        colors={['rgba(255,255,255,0.95)', 'rgba(255,255,255,0.15)']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 0, y: 1 }}
+        style={bar.shine}
+      />
+    </View>
+  );
+}
+
+const bar = StyleSheet.create({
+  wrap: {
+    width: 7,
+    alignSelf: 'stretch',
+    marginRight: 12,
+    borderRadius: 4,
+    boxShadow: '0 0 10px rgba(139,108,240,0.75), 0 2px 4px rgba(90,47,208,0.35)',
+  },
+  fill: { ...StyleSheet.absoluteFill, borderRadius: 4 },
+  shine: { position: 'absolute', left: 1.5, top: 3, bottom: 6, width: 2, borderRadius: 1 },
 });
