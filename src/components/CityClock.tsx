@@ -62,7 +62,9 @@ export function CityClock({ name, timeZone, now, color, lat, lon, onLongPress }:
             <WeatherIcon kind={weather.kind} isDay={weather.isDay} size={th.pixel ? 14 : 16} />
             <Text style={[styles.chipText, styles.weatherText, fontOf(th, 8)]} numberOfLines={1}>
               {/* в пиксельном шрифте нет длинного минуса — ставим обычный */}
-              {weather.label}, {th.pixel ? formatTemp(weather.temp).replace('−', '-') : formatTemp(weather.temp)}
+              {th.pixel
+                ? `${weather.label},${formatTemp(weather.temp).replace('−', '-')}` // без пробела — широкий шрифт, иначе температура не влезает
+                : `${weather.label}, ${formatTemp(weather.temp)}`}
             </Text>
           </>
         ) : (
@@ -112,7 +114,7 @@ const styles = StyleSheet.create({
     borderColor: theme.colors.cardBorder,
   },
   chipLayout: { marginTop: 8, paddingHorizontal: 10, paddingVertical: 6 },
-  chipLayoutPx: { paddingHorizontal: 7, paddingVertical: 7, maxWidth: '100%' },
+  chipLayoutPx: { paddingHorizontal: 6, paddingVertical: 7, maxWidth: '100%', gap: 3 },
   weatherChip: { flexDirection: 'row', alignItems: 'center', gap: 5, maxWidth: '100%' },
   weatherText: { flexShrink: 1 },
   // Мягкое размытое свечение изнутри почти на всю плашку: днём белое, ночью синее.

@@ -9,7 +9,7 @@ import { useState } from 'react';
 import { LayoutAnimation, Pressable, StyleSheet, Switch, Text, View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { fontOf, theme, useTheme } from '../theme';
-import { PixelAddDial, PixelBox, PixelSwitch } from './Pixel';
+import { PixelBox, PixelIcon, PixelSwitch } from './Pixel';
 import { Alarm, formatAlarmTime, formatRepeat } from '../alarms';
 import { getMelody } from '../melodies';
 import { formatCountdownShort, nextRing } from '../time';
@@ -86,7 +86,9 @@ export function AlarmCard({ alarms, onAdd, onEdit, onToggle, onDelete }: Props) 
         {!deleting &&
           (px ? (
             <Pressable onPress={onAdd} hitSlop={6}>
-              <PixelAddDial size={44} />
+              <View style={styles.pxPlus}>
+                <PixelIcon name="plus" size={28} />
+              </View>
             </Pressable>
           ) : (
             <Pressable style={styles.roundBtn} onPress={onAdd}>
@@ -211,6 +213,7 @@ const styles = StyleSheet.create({
   },
   pillLayout: { paddingHorizontal: 16, paddingVertical: 10 },
   pxRoundBtn: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
+  pxPlus: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
   pillText: { fontSize: 15, color: theme.colors.text },
   row: { flexDirection: 'row', alignItems: 'center', paddingVertical: 14, paddingHorizontal: 12 },
   rowActive: {
