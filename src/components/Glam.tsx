@@ -2,7 +2,7 @@
 // Стрелки рисуются в координатах картинки (1024×1024), камушек в центре кладём ПОВЕРХ стрелок,
 // чтобы стрелки «выходили» из-под него, как у настоящих часов.
 
-import { ReactNode } from 'react';
+import { ReactNode, useState } from 'react';
 import { Image, StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 import Svg, { Defs, G, Image as SvgImage, Line, LinearGradient, Polygon, Stop } from 'react-native-svg';
 import { THEME_OBJECTS } from '../theme';
@@ -144,17 +144,31 @@ export function GlamBubble({
 }) {
   // красная и ночная — тот же жемчуг (цвет даёт текст/иконка внутри)
   const set = tint === 'accent' ? BUBBLES.accent : BUBBLES.pearl;
+  // Размер кнопки замеряем и даём картинкам точные цифры —
+  // проценты картинки игнорируют и рисуются в натуральную величину
+  const [size, setSize] = useState({ w: 0, h: 0 });
+  const { w, h } = size;
+  const cap = Math.min(w / 2, h * CAP_RATIO);
+
   return (
-    <View style={[bubble.base, style]}>
-      {round ? (
-        <Image source={set.circle} style={bubble.fill} resizeMode="stretch" />
-      ) : (
-        <View style={bubble.row} pointerEvents="none">
-          <Image source={set.l} style={bubble.cap} resizeMode="stretch" />
-          <Image source={set.m} style={bubble.mid} resizeMode="stretch" />
-          <Image source={set.r} style={bubble.cap} resizeMode="stretch" />
-        </View>
-      )}
+    <View
+      style={[bubble.base, style]}
+      onLayout={(e) => setSize({ w: e.nativeEvent.layout.width, h: e.nativeEvent.layout.height })}
+    >
+      {w > 0 &&
+        (round ? (
+          <Image source={set.circle} style={{ position: 'absolute', left: 0, top: 0, width: w, height: h }} resizeMode="stretch" />
+        ) : (
+          <>
+            <Image source={set.l} style={{ position: 'absolute', left: 0, top: 0, width: cap, height: h }} resizeMode="stretch" />
+            <Image
+              source={set.m}
+              style={{ position: 'absolute', left: cap, top: 0, width: Math.max(0, w - 2 * cap), height: h }}
+              resizeMode="stretch"
+            />
+            <Image source={set.r} style={{ position: 'absolute', left: w - cap, top: 0, width: cap, height: h }} resizeMode="stretch" />
+          </>
+        ))}
       {children}
     </View>
   );
@@ -162,8 +176,4 @@ export function GlamBubble({
 
 const bubble = StyleSheet.create({
   base: { alignItems: 'center', justifyContent: 'center' },
-  fill: { position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' },
-  row: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, flexDirection: 'row' },
-  cap: { height: '100%', aspectRatio: CAP_RATIO },
-  mid: { flex: 1, height: '100%' },
 });
