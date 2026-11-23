@@ -50,7 +50,7 @@ function HeaderButton({ onPress, children }: { onPress?: () => void; children: R
   if (th.glam) {
     return (
       <Pressable onPress={onPress} style={styles.headerBtnGap}>
-        <GlamBubble style={styles.glamBtn}>{children}</GlamBubble>
+        <GlamBubble style={styles.glamBtn} round>{children}</GlamBubble>
       </Pressable>
     );
   }
