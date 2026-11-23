@@ -1,16 +1,17 @@
 // Экран настроек (за шестерёнкой): выбор темы.
 
 import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { theme } from '../theme';
+import { fontOf, theme, useTheme } from '../theme';
 import { THEMES, ThemeId, useSettings } from '../settings';
 import { ClockFace } from './ClockFace';
 import { CloseIcon } from './Icons';
-import { PixelClockFace } from './Pixel';
+import { PixelBox, PixelClockFace, PixelIcon } from './Pixel';
 
 type Props = { visible: boolean; onClose: () => void };
 
 // Мини-превью темы: циферблат в её стиле
 function ThemePreview({ id }: { id: ThemeId }) {
+  const th = useTheme();
   if (id === 'classic' || id === 'pixel') {
     return (
       <View style={styles.previewDial}>
@@ -24,29 +25,55 @@ function ThemePreview({ id }: { id: ThemeId }) {
   }
   return (
     <View style={[styles.previewDial, styles.previewSoon]}>
-      <Text style={styles.soonText}>скоро</Text>
+      <Text style={[styles.soonText, fontOf(th, 8)]}>скоро</Text>
     </View>
   );
 }
 
 export function SettingsModal({ visible, onClose }: Props) {
   const { themeId, setThemeId } = useSettings();
+  const th = useTheme();
+  const px = th.pixel;
+  const f = (size: number) => fontOf(th, size);
 
   return (
     <Modal visible={visible} animationType="slide" presentationStyle="pageSheet" onRequestClose={onClose}>
-      <View style={styles.sheet}>
+      <View style={[styles.sheet, { backgroundColor: th.colors.background }]}>
         <View style={styles.header}>
-          <Text style={styles.title}>Настройки</Text>
-          <Pressable style={styles.circleBtn} onPress={onClose} hitSlop={8}>
-            <CloseIcon />
-          </Pressable>
+          <Text style={[styles.title, f(16)]}>Настройки</Text>
+          {px ? (
+            <Pressable onPress={onClose} hitSlop={8}>
+              <PixelBox style={styles.pxBtn}>
+                <PixelIcon name="close" size={24} />
+              </PixelBox>
+            </Pressable>
+          ) : (
+            <Pressable style={styles.circleBtn} onPress={onClose} hitSlop={8}>
+              <CloseIcon />
+            </Pressable>
+          )}
         </View>
 
         <ScrollView contentContainerStyle={styles.content}>
-          <Text style={styles.sectionTitle}>Тема</Text>
+          <Text style={[styles.sectionTitle, f(10.7)]}>Тема</Text>
           <View style={styles.themes}>
             {THEMES.map((t) => {
               const active = themeId === t.id;
+              if (px) {
+                return (
+                  <Pressable key={t.id} disabled={!t.ready} onPress={() => setThemeId(t.id)} style={[styles.pxCardWrap, !t.ready && { opacity: 0.55 }]}>
+                    <PixelBox
+                      style={styles.pxCard}
+                      stroke={active ? theme.colors.accent : th.colors.outline}
+                      fill={active ? '#F4EEFF' : '#FFFFFF'}
+                      glow={active ? theme.colors.accent : undefined}
+                    >
+                      <ThemePreview id={t.id} />
+                      <Text style={[styles.themeName, f(8), active && styles.themeNameOn]}>{t.name}</Text>
+                    </PixelBox>
+                  </Pressable>
+                );
+              }
               return (
                 <Pressable
                   key={t.id}
@@ -61,7 +88,7 @@ export function SettingsModal({ visible, onClose }: Props) {
             })}
           </View>
 
-          <Text style={styles.credit}>Погода: Open-Meteo.com</Text>
+          <Text style={[styles.credit, f(8)]}>Погода: Open-Meteo.com</Text>
         </ScrollView>
       </View>
     </Modal>
@@ -103,6 +130,9 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     boxShadow: 'inset 0 0 14px 2px rgba(139,108,240,0.18)',
   },
+  pxBtn: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center' },
+  pxCardWrap: { flex: 1 },
+  pxCard: { alignItems: 'center', paddingVertical: 14 },
   previewDial: { width: 64, height: 64, marginBottom: 10 },
   previewSoon: {
     borderRadius: 32,

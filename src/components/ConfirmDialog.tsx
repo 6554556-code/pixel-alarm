@@ -1,10 +1,11 @@
 // Красивое окно подтверждения вместо системного Alert:
 // размытый фон, стеклянная карточка, кнопки-«таблетки» со свечением.
 
-import { useEffect, useRef } from 'react';
+import { ReactNode, useEffect, useRef } from 'react';
 import { Animated, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import { BlurView } from 'expo-blur';
-import { theme } from '../theme';
+import { fontOf, theme, useTheme } from '../theme';
+import { PixelBox } from './Pixel';
 
 type Props = {
   visible: boolean;
@@ -17,6 +18,12 @@ type Props = {
   onCancel: () => void;
 };
 
+// Внутренности карточки: в классике — просто отступы, в пиксельной — рамка-«лесенка»
+function CardFrame({ pixel, children }: { pixel: boolean; children: ReactNode }) {
+  if (pixel) return <PixelBox style={styles.pad} glow={theme.colors.accent}>{children}</PixelBox>;
+  return <View style={styles.pad}>{children}</View>;
+}
+
 export function ConfirmDialog({
   visible,
   title,
@@ -27,6 +34,10 @@ export function ConfirmDialog({
   onConfirm,
   onCancel,
 }: Props) {
+  const th = useTheme();
+  const px = th.pixel;
+  const f = (size: number) => fontOf(th, size);
+
   // Карточка мягко «вырастает» при появлении
   const scale = useRef(new Animated.Value(0.92)).current;
   useEffect(() => {
@@ -45,23 +56,48 @@ export function ConfirmDialog({
       </Pressable>
 
       <View style={styles.center} pointerEvents="box-none">
-        <Animated.View style={[styles.card, { transform: [{ scale }] }]}>
-          <Text style={styles.title}>{title}</Text>
-          {!!message && <Text style={styles.message}>{message}</Text>}
+        <Animated.View style={[styles.cardSize, !px && styles.card, { transform: [{ scale }] }]}>
+          <CardFrame pixel={px}>
+            <Text style={[styles.title, f(13.3)]}>{title}</Text>
+            {!!message && <Text style={[styles.message, f(8)]}>{message}</Text>}
 
-          <View style={styles.buttons}>
-            <Pressable style={({ pressed }) => [styles.btn, styles.cancel, pressed && styles.pressed]} onPress={onCancel}>
-              <Text style={styles.cancelText}>{cancelText}</Text>
-            </Pressable>
-            <Pressable
-              style={({ pressed }) => [styles.btn, destructive ? styles.danger : styles.primary, pressed && styles.pressed]}
-              onPress={onConfirm}
-            >
-              <Text style={[styles.confirmText, { color: destructive ? theme.colors.danger : theme.colors.accent }]}>
-                {confirmText}
-              </Text>
-            </Pressable>
-          </View>
+            <View style={styles.buttons}>
+              {px ? (
+                <>
+                  <Pressable style={styles.pxBtnWrap} onPress={onCancel}>
+                    <PixelBox style={styles.pxBtn}>
+                      <Text style={[styles.cancelText, f(10.7)]}>{cancelText}</Text>
+                    </PixelBox>
+                  </Pressable>
+                  <Pressable style={styles.pxBtnWrap} onPress={onConfirm}>
+                    <PixelBox
+                      style={styles.pxBtn}
+                      fill={destructive ? '#FDE3E4' : '#EFE7FF'}
+                      stroke={destructive ? theme.colors.danger : theme.colors.accent}
+                    >
+                      <Text style={[styles.confirmText, f(10.7), { color: destructive ? theme.colors.danger : theme.colors.accent }]}>
+                        {confirmText}
+                      </Text>
+                    </PixelBox>
+                  </Pressable>
+                </>
+              ) : (
+                <>
+                  <Pressable style={({ pressed }) => [styles.btn, styles.cancel, pressed && styles.pressed]} onPress={onCancel}>
+                    <Text style={styles.cancelText}>{cancelText}</Text>
+                  </Pressable>
+                  <Pressable
+                    style={({ pressed }) => [styles.btn, destructive ? styles.danger : styles.primary, pressed && styles.pressed]}
+                    onPress={onConfirm}
+                  >
+                    <Text style={[styles.confirmText, { color: destructive ? theme.colors.danger : theme.colors.accent }]}>
+                      {confirmText}
+                    </Text>
+                  </Pressable>
+                </>
+              )}
+            </View>
+          </CardFrame>
         </Animated.View>
       </View>
     </Modal>
@@ -71,10 +107,11 @@ export function ConfirmDialog({
 const styles = StyleSheet.create({
   dim: { ...StyleSheet.absoluteFill, backgroundColor: 'rgba(40,30,80,0.12)' },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 32 },
+  cardSize: { width: '100%', maxWidth: 360 },
+  pad: { padding: 22 },
+  pxBtnWrap: { flex: 1 },
+  pxBtn: { height: 52, alignItems: 'center', justifyContent: 'center' },
   card: {
-    width: '100%',
-    maxWidth: 360,
-    padding: 22,
     borderRadius: 30,
     backgroundColor: 'rgba(255,255,255,0.78)',
     borderWidth: 1,

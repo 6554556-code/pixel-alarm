@@ -1,9 +1,10 @@
 // Экран поиска города (выезжает снизу).
 // Печатаешь название → через долю секунды появляется список → тап по городу добавляет его.
 
-import { useEffect, useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, Modal, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
-import { theme } from '../theme';
+import { fontOf, theme, useTheme } from '../theme';
+import { PixelBox } from './Pixel';
 import { City, searchCities } from '../cities';
 import { formatTime, getZonedTime } from '../time';
 
@@ -14,6 +15,11 @@ type Props = {
 };
 
 const DEBOUNCE_MS = 350; // ждём, пока человек допечатает, а не ищем на каждую букву
+
+function SearchFrame({ pixel, children }: { pixel: boolean; children: ReactNode }) {
+  if (!pixel) return <>{children}</>;
+  return <PixelBox style={styles.pxInputBox}>{children}</PixelBox>;
+}
 
 export function CitySearchModal({ visible, onClose, onPick }: Props) {
   const [query, setQuery] = useState('');
@@ -55,6 +61,10 @@ export function CitySearchModal({ visible, onClose, onPick }: Props) {
     };
   }, [query]);
 
+  const th = useTheme();
+  const px = th.pixel;
+  const f = (size: number) => fontOf(th, size);
+
   const localTime = (tz: string) => {
     try {
       return formatTime(getZonedTime(new Date(), tz));
@@ -65,16 +75,18 @@ export function CitySearchModal({ visible, onClose, onPick }: Props) {
 
   return (
     <Modal visible={visible} animationType="slide" presentationStyle="pageSheet" onRequestClose={onClose}>
-      <View style={styles.sheet}>
+      <View style={[styles.sheet, { backgroundColor: th.colors.background }]}>
         <View style={styles.header}>
-          <Text style={styles.title}>Новый город</Text>
+          <Text style={[styles.title, f(13.3)]}>Новый город</Text>
           <Pressable onPress={onClose} hitSlop={12}>
-            <Text style={styles.cancel}>Отмена</Text>
+            <Text style={[styles.cancel, f(8)]}>Отмена</Text>
           </Pressable>
         </View>
 
-        <TextInput
-          style={styles.input}
+        {/* Поле поиска: в пиксельной теме — в рамке-«лесенке» */}
+        <SearchFrame pixel={px}>
+          <TextInput
+          style={[styles.input, px && styles.pxInput, f(10.7)]}
           placeholder="Например, Токио"
           placeholderTextColor={theme.colors.textMuted}
           value={query}
@@ -83,12 +95,13 @@ export function CitySearchModal({ visible, onClose, onPick }: Props) {
           autoCorrect={false}
           returnKeyType="search"
           clearButtonMode="while-editing"
-        />
+          />
+        </SearchFrame>
 
         {loading && <ActivityIndicator style={styles.status} color={theme.colors.accent} />}
-        {error && <Text style={styles.status}>Не получилось найти — проверь интернет</Text>}
+        {error && <Text style={[styles.status, f(8)]}>Не получилось найти — проверь интернет</Text>}
         {!loading && !error && query.trim().length >= 2 && results.length === 0 && (
-          <Text style={styles.status}>Ничего не нашлось 🤔</Text>
+          <Text style={[styles.status, f(8)]}>Ничего не нашлось 🤔</Text>
         )}
 
         <FlatList
@@ -96,12 +109,15 @@ export function CitySearchModal({ visible, onClose, onPick }: Props) {
           keyExtractor={(c) => c.id}
           keyboardShouldPersistTaps="handled"
           renderItem={({ item }) => (
-            <Pressable style={({ pressed }) => [styles.row, pressed && styles.rowPressed]} onPress={() => onPick(item)}>
+            <Pressable
+              style={({ pressed }) => [styles.row, px && styles.pxRow, pressed && styles.rowPressed]}
+              onPress={() => onPick(item)}
+            >
               <View style={{ flex: 1 }}>
-                <Text style={styles.cityName}>{item.name}</Text>
-                {!!item.region && <Text style={styles.region}>{item.region}</Text>}
+                <Text style={[styles.cityName, f(10.7)]}>{item.name}</Text>
+                {!!item.region && <Text style={[styles.region, f(8)]}>{item.region}</Text>}
               </View>
-              <Text style={styles.time}>{localTime(item.timeZone)}</Text>
+              <Text style={[styles.time, f(10.7)]}>{localTime(item.timeZone)}</Text>
             </Pressable>
           )}
         />
@@ -135,6 +151,9 @@ const styles = StyleSheet.create({
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: 'rgba(0,0,0,0.1)',
   },
+  pxInputBox: { marginBottom: 8 },
+  pxInput: { backgroundColor: 'transparent', borderWidth: 0, marginBottom: 0, borderRadius: 0 },
+  pxRow: { borderBottomWidth: 2, borderBottomColor: 'rgba(59,42,110,0.25)' },
   rowPressed: { backgroundColor: 'rgba(139,108,240,0.08)' },
   cityName: { fontSize: 18, color: theme.colors.text },
   region: { fontSize: 13, color: theme.colors.textMuted, marginTop: 2 },
