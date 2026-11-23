@@ -9,7 +9,7 @@ export type ThemeId = 'classic' | 'pixel' | 'glam';
 export const THEMES: { id: ThemeId; name: string; ready: boolean }[] = [
   { id: 'classic', name: 'Классика', ready: true },
   { id: 'pixel', name: 'Пиксель', ready: true },
-  { id: 'glam', name: 'Гламур', ready: false }, // позже
+  { id: 'glam', name: 'Гламур', ready: true },
 ];
 
 type Settings = {

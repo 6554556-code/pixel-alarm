@@ -8,6 +8,7 @@ import { StyleSheet, View } from 'react-native';
 import Svg, { Circle, Defs, Line, RadialGradient, Stop } from 'react-native-svg';
 import { theme, useTheme } from '../theme';
 import { PixelClockFace } from './Pixel';
+import { GlamClockFace } from './Glam';
 
 type Props = {
   color: string; // цвет обводки, свечения и центра
@@ -15,7 +16,7 @@ type Props = {
   minute?: number;
   second?: number;
   empty?: boolean; // без стрелок — для слота «Добавить»
-  variant?: 'classic' | 'pixel'; // принудительно (для превью в настройках); по умолчанию — текущая тема
+  variant?: 'classic' | 'pixel' | 'glam'; // принудительно (для превью в настройках); по умолчанию — текущая тема
 };
 
 const C = 50; // центр
@@ -76,8 +77,10 @@ function Hand({ angle, length, width, color, glowColor }: HandProps) {
 
 export function ClockFace(props: Props) {
   const t = useTheme();
-  const variant = props.variant ?? (t.pixel ? 'pixel' : 'classic');
-  return variant === 'pixel' ? <PixelClockFace {...props} /> : <GlassClockFace {...props} />;
+  const variant = props.variant ?? (t.pixel ? 'pixel' : t.glam ? 'glam' : 'classic');
+  if (variant === 'pixel') return <PixelClockFace {...props} />;
+  if (variant === 'glam') return <GlamClockFace {...props} />;
+  return <GlassClockFace {...props} />;
 }
 
 function GlassClockFace({ color, hour = 0, minute = 0, second = 0, empty = false }: Props) {

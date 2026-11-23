@@ -9,6 +9,7 @@ import { useSettings } from './settings';
 const classic = {
   id: 'classic' as const,
   pixel: false,
+  glam: false,
   colors: {
     background: '#EEEAF8', // лавандовый фон экрана
     card: 'rgba(255,255,255,0.55)', // полупрозрачное «стекло»
@@ -30,7 +31,7 @@ const classic = {
   font: undefined as string | undefined,
 };
 
-export type Theme = Omit<typeof classic, 'id'> & { id: 'classic' | 'pixel' };
+export type Theme = Omit<typeof classic, 'id'> & { id: 'classic' | 'pixel' | 'glam' };
 
 const pixel: Theme = {
   ...classic,
@@ -49,12 +50,20 @@ const pixel: Theme = {
   font: 'PressStart2P',
 };
 
+// Гламур: стекло как в классике + перламутровый фон, хромированные циферблаты и стрелки
+const glam: Theme = {
+  ...classic,
+  id: 'glam',
+  glam: true,
+  colors: { ...classic.colors, background: '#E6E2F8' },
+};
+
 export const theme: Theme = classic;
-export const THEME_OBJECTS = { classic, pixel };
+export const THEME_OBJECTS = { classic, pixel, glam };
 
 export function useTheme(): Theme {
   const { themeId } = useSettings();
-  return themeId === 'pixel' ? pixel : classic;
+  return THEME_OBJECTS[themeId] ?? classic;
 }
 
 // Press Start 2P нарисован на сетке 8×8: буква чёткая, только если её «пиксель»

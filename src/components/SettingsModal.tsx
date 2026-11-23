@@ -12,6 +12,13 @@ type Props = { visible: boolean; onClose: () => void };
 // Мини-превью темы: циферблат в её стиле
 function ThemePreview({ id }: { id: ThemeId }) {
   const th = useTheme();
+  if (id === 'glam') {
+    return (
+      <View style={styles.previewDial}>
+        <ClockFace color={theme.colors.accent} hour={10} minute={10} variant="glam" />
+      </View>
+    );
+  }
   if (id === 'classic' || id === 'pixel') {
     return (
       <View style={styles.previewDial}>

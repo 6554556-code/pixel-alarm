@@ -1,7 +1,7 @@
 // Главный экран «Часы и будильники»
 
 import { ReactNode, useEffect, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useFonts } from 'expo-font';
 import { fontOf, theme, useTheme } from './src/theme';
@@ -99,6 +99,8 @@ function MainScreen() {
 
   return (
     <View style={[styles.screen, { backgroundColor: th.colors.background }]}>
+      {/* Гламур: перламутровый фон с радужными бликами */}
+      {th.glam && <Image source={require('./assets/glam/background.jpg')} style={styles.bgImage} resizeMode="cover" />}
       <StatusBar style="dark" />
       <ScrollView contentContainerStyle={styles.content}>
         {/* Шапка */}
@@ -168,6 +170,7 @@ function MainScreen() {
 }
 
 const styles = StyleSheet.create({
+  bgImage: { position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' },
   screen: { flex: 1, backgroundColor: theme.colors.background },
   content: { paddingTop: 64, paddingHorizontal: 16, paddingBottom: 40 },
   header: { flexDirection: 'row', alignItems: 'center', marginBottom: 24 },
