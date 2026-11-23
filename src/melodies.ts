@@ -56,6 +56,16 @@ export const MELODIES: Melody[] = [
   // Сон
   { id: 'wakeup_coffee', name: 'Кофе', category: 'sleep', sub: 'wakeup', voice: 'f', file: require('../assets/sounds/sleep_wakeup_coffee.mp3') },
   { id: 'wakeup_little_rascal', name: 'Просыпайся, маленький паршивец', category: 'sleep', sub: 'wakeup', voice: 'm', file: require('../assets/sounds/sleep_wakeup_little_rascal.mp3') },
+  { id: 'sleep_lie_down', name: 'Ложись спать', category: 'sleep', voice: 'f', file: require('../assets/sounds/sleep_lie_down.mp3') },
+  { id: 'sleep_too_good', name: 'Ты слишком хороша', category: 'sleep', voice: 'f', file: require('../assets/sounds/sleep_too_good.mp3') },
+  { id: 'sleep_touching_phone', name: 'Трогаешь телефон', category: 'sleep', voice: 'f', file: require('../assets/sounds/sleep_touching_phone.mp3') },
+  { id: 'sleep_pillow_date', name: 'Свидание с подушкой', category: 'sleep', voice: 'f', file: require('../assets/sounds/sleep_pillow_date.mp3') },
+  { id: 'sleep_put_phone_down', name: 'Хватит держать его в руках', category: 'sleep', voice: 'f', file: require('../assets/sounds/sleep_put_phone_down.mp3') },
+  { id: 'wakeup_open_eyes', name: 'Открывай глазки', category: 'sleep', sub: 'wakeup', voice: 'f', file: require('../assets/sounds/sleep_wakeup_open_eyes.mp3') },
+  { id: 'wakeup_get_up', name: 'Вставай', category: 'sleep', sub: 'wakeup', voice: 'f', file: require('../assets/sounds/sleep_wakeup_get_up.mp3') },
+  { id: 'wakeup_stop_lazing', name: 'Хватит валяться', category: 'sleep', sub: 'wakeup', voice: 'f', file: require('../assets/sounds/sleep_wakeup_stop_lazing.mp3') },
+  { id: 'sleep_surrender_mattress', name: 'Отдаться матрасу', category: 'sleep', voice: 'f', file: require('../assets/sounds/sleep_surrender_mattress.mp3') },
+  { id: 'sleep_time_for_bed', name: 'Пора в постель', category: 'sleep', voice: 'f', file: require('../assets/sounds/sleep_time_for_bed.mp3') },
 
   // Еда
   { id: 'oven_hot_thing_ready', name: 'Твоя горячая штучка готова', category: 'food', sub: 'oven', voice: 'f', file: require('../assets/sounds/food_oven_hot_thing_ready.mp3') },
