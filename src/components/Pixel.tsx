@@ -127,7 +127,7 @@ function neonGlow(color: string, scale = 1) {
     Math.round(Math.min(1, o * scale) * 255)
       .toString(16)
       .padStart(2, '0');
-  return `0 0 10px 2px ${a(0.85)}, 0 0 26px 8px ${a(0.45)}`;
+  return `0 0 10px 2px ${a(0.6)}, 0 0 26px 8px ${a(0.3)}`;
 }
 
 // Какой циферблат взять: по цвету города (1-й, 2-й, 3-й) или «добавить»
