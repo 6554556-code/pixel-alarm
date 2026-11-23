@@ -2,7 +2,7 @@
 // Внутри две «страницы»: основная и выбор мелодии.
 
 import { ReactNode, useEffect, useState } from 'react';
-import { Alert, Image, Modal, Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
+import { Image, Modal, Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
 import { setAudioModeAsync, useAudioPlayer, useAudioPlayerStatus } from 'expo-audio';
 import { fontOf, theme, useTheme } from '../theme';
 import { PixelBox, PixelIcon, PixelRadio, PixelSwitch } from './Pixel';
@@ -25,7 +25,6 @@ import {
   NoteIcon,
   PauseIcon,
   PencilIcon,
-  PianoIcon,
   PlayIcon,
   RadioDot,
 } from './Icons';
@@ -416,7 +415,7 @@ export function AlarmEditor({ visible, alarm, onSave, onDelete, onClose }: Props
                 textStyle={f(10.7)}
                 onChange={(v) => {
                   changeVoice(v);
-                  if (filter && filter !== 'chiptune' && melodiesIn(filter, v).length === 0) setFilter(null);
+                  if (filter && melodiesIn(filter, v).length === 0) setFilter(null);
                 }}
               />
             </View>
@@ -430,7 +429,7 @@ export function AlarmEditor({ visible, alarm, onSave, onDelete, onClose }: Props
             >
               {CATEGORIES.map((c) => {
                 const active = filter === c.id;
-                const empty = c.id !== 'chiptune' && melodiesIn(c.id, voice).length === 0;
+                const empty = melodiesIn(c.id, voice).length === 0;
                 if (th.glam) {
                   return (
                     <Pressable
@@ -462,8 +461,7 @@ export function AlarmEditor({ visible, alarm, onSave, onDelete, onClose }: Props
             <ScrollView contentContainerStyle={styles.content}>
               {CATEGORIES.filter((c) => !filter || c.id === filter).map((c) => {
                 const list = melodiesIn(c.id, voice);
-                const isChiptune = c.id === 'chiptune';
-                if (list.length === 0 && !isChiptune) return null;
+                if (list.length === 0) return null;
                 return (
                   <View key={c.id} style={styles.section}>
                     <View style={styles.sectionHead}>
@@ -471,25 +469,12 @@ export function AlarmEditor({ visible, alarm, onSave, onDelete, onClose }: Props
                       <Text style={[styles.sectionTitle, f(10.7)]}>{c.name}</Text>
                     </View>
                     <View style={[styles.card, styles.cardLayout]}>
-                      {/* Первая строка Чиптюна — вход в синтезатор */}
-                      {isChiptune && (
-                        <Pressable
-                          style={styles.row}
-                          onPress={() => Alert.alert('Синтезатор', 'Скоро здесь можно будет сочинить свою мелодию 🎹')}
-                        >
-                          <PianoIcon color={theme.colors.accent} />
-                          <Text style={[styles.rowLabel, { color: theme.colors.accent, fontWeight: '600' }, f(10.7)]}>
-                            Создать свою
-                          </Text>
-                          <ChevronRight size={18} color={theme.colors.textMuted} />
-                        </Pressable>
-                      )}
                       {list.map((m, i) => {
                         const selected = draft.melody === m.id;
                         const playing = previewing === m.id;
                         return (
                           <View key={m.id}>
-                            {(i > 0 || isChiptune) && <View style={styles.divider} />}
+                            {i > 0 && <View style={styles.divider} />}
                             <Pressable style={styles.row} onPress={() => set({ melody: m.id })}>
                               {px ? <PixelRadio on={selected} /> : <RadioDot on={selected} />}
                               <Text style={[styles.rowLabel, selected && { fontWeight: '600' }, f(10.7)]}>{m.name}</Text>
@@ -621,7 +606,7 @@ const styles = StyleSheet.create({
   snoozeValue: { fontSize: 15, fontWeight: '600', color: theme.colors.accent, fontVariant: ['tabular-nums'] },
 
   voiceBar: { paddingHorizontal: 16, marginTop: 8 },
-  filterBar: { flexGrow: 0, marginTop: 12, marginBottom: 4 },
+  filterBar: { flexGrow: 0, flexShrink: 0, marginTop: 12, marginBottom: 4 }, // flexShrink 0 — длинный список ниже не сплющивает полоску
   filterContent: { paddingHorizontal: 16, paddingVertical: 4, gap: 10 },
   filterBtn: {
     width: 52,

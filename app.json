@@ -46,7 +46,6 @@
           "microphonePermission": "Pixel Alarm использует микрофон, чтобы ты могла записать свой голос для напоминания."
         }
       ],
-      "expo-notifications",
       "expo-asset",
       "expo-font"
     ],
